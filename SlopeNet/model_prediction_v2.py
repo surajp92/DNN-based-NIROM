@@ -38,11 +38,11 @@ def model_predict(testing_set, m, n, dt, legs, slopenet):
     elif (legs == 4) & (slopenet == "SEQ"):
          return model_predict_seq4(testing_set, m, n, dt)
     elif (legs == 1) & (slopenet == "EULER"):
-        return create_training_data_e1(testing_set, m, n, dt)
+        return model_predict_e1(testing_set, m, n, dt)
     elif (legs == 2) & (slopenet == "EULER"):
-        return create_training_data_e2(testing_set, m, n, dt)
+        return model_predict_e2(testing_set, m, n, dt)
     elif (legs == 4) & (slopenet == "EULER"):
-        return create_training_data_e4(testing_set, m, n, dt)
+        return model_predict_e4(testing_set, m, n, dt)
 
 
 def model_predict_bdf2(_testing_set, _m, _n, _dt):
@@ -52,7 +52,7 @@ def model_predict_bdf2(_testing_set, _m, _n, _dt):
     # create input at t= 0 for the model testing
     ytest = [_testing_set[0], _testing_set[1]]
     ytest = np.array(ytest)
-    ytest = ytest.reshape(1,20)
+    ytest = ytest.reshape(1,2*(_n-1))
     
     ytest_ml = [_testing_set[0]]
     ytest_ml = np.array(ytest_ml)
@@ -277,7 +277,7 @@ def model_predict_seq4(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def model_predict_data_e1(_testing_set, _m, _n, _dt):
+def model_predict_e1(_testing_set, _m, _n, _dt):
     print("e1")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
@@ -296,7 +296,7 @@ def model_predict_data_e1(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def model_predict_data_e2(_testing_set, _m, _n, _dt):
+def model_predict_e2(_testing_set, _m, _n, _dt):
     print("e2")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
@@ -322,7 +322,7 @@ def model_predict_data_e2(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def model_predict_data_e4(_testing_set, _m, _n, _dt):
+def model_predict_e4(_testing_set, _m, _n, _dt):
     print("e4")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 

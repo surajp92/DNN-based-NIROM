@@ -36,7 +36,7 @@ training_set = training_set[:,1:n]
 #training_set = training_set_scaled
 
 legs = 4 # No. of legs = 1,2,4
-slopenet = "EULER" # Choices: BDF, SEQ, EULER
+slopenet = "EULER" # Choices: BDF, SEQ, EULER, LEAPFROG
 
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
