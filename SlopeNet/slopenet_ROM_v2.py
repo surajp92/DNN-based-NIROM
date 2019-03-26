@@ -12,9 +12,9 @@ from tensorflow import set_random_seed
 set_random_seed(2)
 import matplotlib.pyplot as plt
 import pandas as pd
-from create_data import * #create_training_data_bdf2
-from model_prediction import *
-from export_data import *
+from create_data_v2 import * #create_training_data_bdf2
+from model_prediction_v2 import *
+from export_data_v2 import *
 
 #--------------------------------------------------------------------------------------------------------------#
 def coeff_determination(y_true, y_pred):
@@ -35,13 +35,13 @@ training_set = training_set[:,1:n]
 #training_set_scaled.shape
 #training_set = training_set_scaled
 
-legs = 2 # No. of legs = 1,2,4
-slopnet = "LEAPFROG" # Choices: BDF, SEQ 
-xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopnet)
+legs = 4 # No. of legs = 1,2,4
+slopenet = "EULER" # Choices: BDF, SEQ, EULER
+xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
 #--------------------------------------------------------------------------------------------------------------#
 from keras.models import Sequential, Model
-from keras.layers import Dense, dot, Input
+from keras.layers import Dense, Dropout, Input
 import keras.backend as K
 from keras.callbacks import ModelCheckpoint
 from keras.models import load_model
@@ -53,11 +53,11 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
-
+model.add(Dropout(0.2))
 # Hidden layers
-x = Dense(100, activation='tanh', use_bias=True)(input_layer)
-x = Dense(100, activation='tanh', use_bias=True)(x)
-#x = Dense(100, activation='tanh', use_bias=True)(x)
+x = Dense(100, activation='relu', use_bias=True)(input_layer)
+x = Dense(100, activation='relu', use_bias=True)(x)
+#x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 
@@ -68,7 +68,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=400, batch_size=100, verbose=1, validation_split= 0.2,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=90, verbose=1, validation_split= 0.2,
                                     callbacks=callbacks_list)
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -99,7 +99,7 @@ testing_set = testing_set[:,1:n]
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
-ytest_ml = model_predict(testing_set, m, n, dt, legs, slopnet)
+ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
 # plot ML prediction and true data
 plot_results(ytest_ml, testing_set, m, n)
