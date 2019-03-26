@@ -8,6 +8,7 @@ Created on Mon Mar 25 17:38:42 2019
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def plot_results(ytest_ml, testing_set, m, n):
 
     for i in range(n-1):
@@ -21,10 +22,12 @@ def plot_results(ytest_ml, testing_set, m, n):
         #plt.savefig(name, dpi = 600)
         plt.show()
 
+
 def calculate_l2norm(ytest_ml, testing_set, m, n):
     # calculates L2 norm of each series
     print("blank")
-    
+
+
 def export_results(ytest_ml, testing_set, m, n):
     # export result in x y format for further plotting
     print("blank")

@@ -37,6 +37,7 @@ training_set = training_set[:,1:n]
 
 legs = 4 # No. of legs = 1,2,4
 slopenet = "EULER" # Choices: BDF, SEQ, EULER
+
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -53,10 +54,12 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
+
 model.add(Dropout(0.2))
 # Hidden layers
 x = Dense(100, activation='relu', use_bias=True)(input_layer)
 x = Dense(100, activation='relu', use_bias=True)(x)
+
 #x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
