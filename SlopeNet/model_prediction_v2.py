@@ -33,8 +33,10 @@ def model_predict(testing_set, m, n, dt, legs, slopenet):
         return model_predict_lf4(testing_set, m, n, dt)
     elif (legs == 1) & (slopenet == "SEQ"):
         return model_predict_seq1(testing_set, m, n, dt)
-     elif (legs == 2) & (slopenet == "SEQ"):
-        return model_predict_seq2(testing_set, m, n, dt)
+    elif (legs == 2) & (slopenet == "SEQ"):
+         return model_predict_seq2(testing_set, m, n, dt)
+    elif (legs == 4) & (slopenet == "SEQ"):
+         return model_predict_seq4(testing_set, m, n, dt)
     elif (legs == 1) & (slopenet == "EULER"):
         return create_training_data_e1(testing_set, m, n, dt)
     elif (legs == 2) & (slopenet == "EULER"):
@@ -244,6 +246,33 @@ def model_predict_seq2(_testing_set, _m, _n, _dt):
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
         ytest = ee.reshape(1,2*(_n-1))
+
+    return ytest_ml
+
+def model_predict_seq4(_testing_set, _m, _n, _dt):
+    print("seq4")
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+
+    ytest = [_testing_set[0], _testing_set[1], _testing_set[2], _testing_set[3]]
+    ytest = np.array(ytest)
+    ytest = ytest.reshape(1,4*(_n-1))
+
+    ytest_ml = [_testing_set[0]]
+    ytest_ml = np.array(ytest_ml)
+    ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
+    ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
+    ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
+
+    for i in range(4,_testing_set.shape[0]-1):
+        slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
+        a = 1.0*slope_ml[0] # y1 at next time step
+        ytest_ml = np.vstack((ytest_ml, a))
+        e = a.reshape(1,_n-1)
+        ytemp = ytest[0]
+        ytemp = ytemp.reshape(1,4*(_n-1))
+        ee = np.concatenate((ytemp,e), axis = 1)
+        ee = ee[0,_n-1:]
+        ytest = ee.reshape(1,4*(_n-1))
 
     return ytest_ml
 
