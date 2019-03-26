@@ -54,17 +54,15 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
-
 model.add(Dropout(0.2))
 # Hidden layers
 x = Dense(100, activation='relu', use_bias=True)(input_layer)
 x = Dense(100, activation='relu', use_bias=True)(x)
-
 #x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 
-op_val = Dense(10, activation='linear', use_bias=True)(x)
+op_val = Dense(n-1, activation='linear', use_bias=True)(x)
 custom_model = Model(inputs=input_layer, outputs=op_val)
 filepath = "best_model.hd5"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')

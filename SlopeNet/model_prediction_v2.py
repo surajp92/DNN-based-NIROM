@@ -277,7 +277,7 @@ def model_predict_seq4(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def create_training_data_e1(_testing_set, _m, _n, _dt):
+def model_predict_data_e1(_testing_set, _m, _n, _dt):
     print("e1")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
@@ -296,7 +296,7 @@ def create_training_data_e1(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def create_training_data_e2(_testing_set, _m, _n, _dt):
+def model_predict_data_e2(_testing_set, _m, _n, _dt):
     print("e2")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
@@ -322,7 +322,7 @@ def create_training_data_e2(_testing_set, _m, _n, _dt):
     return ytest_ml
 
 
-def create_training_data_e4(_testing_set, _m, _n, _dt):
+def model_predict_data_e4(_testing_set, _m, _n, _dt):
     print("e4")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
