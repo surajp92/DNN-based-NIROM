@@ -37,7 +37,7 @@ def model_predict_lstm(_testing_set, _m, _n, _lookback):
     return ytest_ml
     
 
-def model_predict(testing_set, m, n, dt, legs, slopenet):
+def model_predict(testing_set, m, n, dt, legs, slopenet, sigma):
     if (legs == 2) & (slopenet == "BDF"):
         return model_predict_bdf2(testing_set, m, n, dt)
     elif (legs == 3) & (slopenet == "BDF"):
@@ -51,11 +51,11 @@ def model_predict(testing_set, m, n, dt, legs, slopenet):
     elif (legs == 4) & (slopenet == "LEAPFROG"):
         return model_predict_lf4(testing_set, m, n, dt)
     elif (legs == 1) & (slopenet == "LEAPFROG-FILTER"):
-        return model_predict_lff1(testing_set, m, n, dt)
+        return model_predict_lff1(testing_set, m, n, dt, sigma)
     elif (legs == 2) & (slopenet == "LEAPFROG-FILTER"):
-        return model_predict_lff2(testing_set, m, n, dt)
+        return model_predict_lff2(testing_set, m, n, dt, sigma)
     elif (legs == 4) & (slopenet == "LEAPFROG-FILTER"):
-        return model_predict_lff4(testing_set, m, n, dt)
+        return model_predict_lff4(testing_set, m, n, dt, sigma)
     elif (legs == 1) & (slopenet == "SEQ"):
         return model_predict_seq1(testing_set, m, n, dt)
     elif (legs == 2) & (slopenet == "SEQ"):
@@ -174,7 +174,7 @@ def model_predict_lf1(_testing_set, _m, _n, _dt):
         
     return ytest_ml
     
-def model_predict_lff1(_testing_set, _m, _n, _dt):
+def model_predict_lff1(_testing_set, _m, _n, _dt, sigma):
     print("lff1")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
     
@@ -188,7 +188,6 @@ def model_predict_lff1(_testing_set, _m, _n, _dt):
     yf_ml = np.zeros((_m,_n-1))
     yf_ml[0] = _testing_set[0]
     
-    sigma = 0.1
     for i in range(1,_testing_set.shape[0]-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
@@ -223,7 +222,7 @@ def model_predict_lf2(_testing_set, _m, _n, _dt):
     
     return ytest_ml
 
-def model_predict_lff2(_testing_set, _m, _n, _dt):
+def model_predict_lff2(_testing_set, _m, _n, _dt, sigma):
     print("lff2")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
     
@@ -237,7 +236,6 @@ def model_predict_lff2(_testing_set, _m, _n, _dt):
     yf_ml = [_testing_set[0]]
     yf_ml = np.array(yf_ml)
     
-    sigma = 0.15
     for i in range(1,_testing_set.shape[0]-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
@@ -280,7 +278,7 @@ def model_predict_lf4(_testing_set, _m, _n, _dt):
     
     return ytest_ml
 
-def model_predict_lff4(_testing_set, _m, _n, _dt):
+def model_predict_lff4(_testing_set, _m, _n, _dt, sigma):
     print("lff4")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
     
@@ -298,7 +296,6 @@ def model_predict_lff4(_testing_set, _m, _n, _dt):
     yf_ml = np.vstack((yf_ml, _testing_set[1]))
     yf_ml = np.vstack((yf_ml, _testing_set[2]))
     
-    sigma = 0.1
     for i in range(3,_testing_set.shape[0]-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
@@ -311,16 +308,6 @@ def model_predict_lff4(_testing_set, _m, _n, _dt):
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
         ytest = ee.reshape(1,4*(_n-1))
-        
-#        slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
-#        a = ytest_ml[i-1] + 2.0*_dt*slope_ml[0] # y1 at next time step
-#        ytest_ml = np.vstack((ytest_ml, a))
-#        e = a.reshape(1,_n-1)
-#        ytemp = ytest[0]
-#        ytemp = ytemp.reshape(1,4*(_n-1))
-#        ee = np.concatenate((ytemp,e), axis = 1)
-#        ee = ee[0,_n-1:]
-#        ytest = ee.reshape(1,4*(_n-1))  #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
     
     return ytest_ml
 

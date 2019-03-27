@@ -35,8 +35,9 @@ training_set = training_set[:,1:n]
 #training_set_scaled.shape
 #training_set = training_set_scaled
 
-legs = 4 # No. of legs = 1,2,4
+legs = 2 # No. of legs = 1,2,4
 slopenet = "LEAPFROG-FILTER" # Choices: BDF, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
+sigma = 0.0
 
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
@@ -54,7 +55,7 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 # Hidden layers
 x = Dense(100, activation='relu', use_bias=True)(input_layer)
 x = Dense(100, activation='relu', use_bias=True)(x)
@@ -100,7 +101,7 @@ testing_set = testing_set[:,1:n]
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
-ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
+ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma)
 
 # sum of L2 norm of each series
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)

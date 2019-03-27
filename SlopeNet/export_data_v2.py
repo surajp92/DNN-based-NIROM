@@ -19,8 +19,8 @@ def plot_results():
         plt.ylabel('Response')
         plt.xlabel('Time')
         plt.legend(loc='best')
-        name = 'dns_bdf_twoleg_a='+str(i+1)+'.eps'
-        #plt.savefig(name, dpi = 600)
+        name = 'a='+str(i+1)+'.eps'
+        plt.savefig(name, dpi = 400)
         plt.show()
 
 

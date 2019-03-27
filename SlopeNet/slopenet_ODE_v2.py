@@ -36,10 +36,10 @@ t_final = 10.0 # Final time
 nt_steps = 200 # Number of time steps
 t = np.linspace(0,t_final, num=nt_steps)
 dt = (t_final - t_init)/nt_steps
-
+sigma = 0.1
 y0 = [1, -0.1, 0]
 training_set = odeint(odemodel,y0,t)
-legs = 2 # No. of legs = 1,2,4
+legs = 1 # No. of legs = 1,2,4
 slopenet = "LEAPFROG-FILTER" # Choices: BDF, SEQ, EULER, LEAPFROG
 m,n = training_set.shape
 n = n+1
@@ -71,7 +71,7 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 
 # Hidden layers
 x = Dense(100, activation='relu', use_bias=True)(input_layer)
@@ -114,7 +114,7 @@ n = n+1
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
-ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
+ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma)
 
 # sum of L2 norm of each series
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)

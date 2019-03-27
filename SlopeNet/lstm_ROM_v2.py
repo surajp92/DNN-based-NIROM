@@ -10,6 +10,7 @@ from numpy.random import seed
 seed(1)
 from tensorflow import set_random_seed
 set_random_seed(2)
+import pandas as pd
 
 import math
 from keras.models import Sequential
@@ -24,48 +25,23 @@ from create_data_v2 import *
 from model_prediction_v2 import *
 from export_data_v2 import *
 
-# function that returns dy/dt
-def odemodel(y,t):
-    dy0dt =  y[0]   * y[2]
-    dy1dt = -y[1]   * y[2]
-    dy2dt = -y[0]**2 + y[1]**2
-    dydt  = [dy0dt, dy1dt, dy2dt]
-    return dydt
+dataset_train = pd.read_csv('./a.csv', sep=",",skiprows=0,header = None, nrows=1000)
+m,n=dataset_train.shape
+training_set = dataset_train.iloc[:,0:n].values
+dt = training_set[1,0] - training_set[0,0]
+training_set = training_set[:,1:n]
+n = n-1
+lookback = 2
 
-# time points
-t_init  = 0.0  # Initial time
-t_final = 10.0 # Final time
-nt_steps = 200 # Number of time steps
-t = np.linspace(0,t_final, num=nt_steps)
-dt = (t_final - t_init)/nt_steps
-lookback = 4
-
-# initial condition
-y0 = [1, -0.1, 0]
-# solve ODE
-training_set = odeint(odemodel,y0,t)
-# Note more sophisticated ode integrators should be used
-m,n = training_set.shape
 xtrain, ytrain = create_training_data_lstm(training_set, m, n, lookback)
-
-# additional data for training with random initial condition
-for i in range(-9,11):
-    y2s = 0.1*(0.1*i)
-    y0 = [1.0, y2s, 0.0]
-    training_set = odeint(odemodel,y0,t)
-    m,n = training_set.shape
-    xtemp, ytemp= create_training_data_lstm(training_set, m, n, lookback)
-    xtrain = np.vstack((xtrain, xtemp))
-    ytrain = np.vstack((ytrain, ytemp))
-
 
 # create the LSTM model
 model = Sequential()
 #model.add(LSTM(3, input_shape=(1, 3), return_sequences=True, activation='tanh'))
 #model.add(LSTM(12, input_shape=(1, 3), return_sequences=True, activation='tanh'))
 #model.add(LSTM(12, input_shape=(1, 3), return_sequences=True, activation='tanh'))
-model.add(LSTM(60, input_shape=(lookback, 3), activation='tanh'))
-model.add(Dense(3))
+model.add(LSTM(60, input_shape=(lookback, n), activation='tanh'))
+model.add(Dense(n))
 
 # compile the model
 model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
@@ -86,19 +62,24 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
-y2s = 0.1*0.25
-y0test = [1, y2s, 0]
-# solve ODE
-testing_set = odeint(odemodel,y0test,t)
+#--------------------------------------------------------------------------------------------------------------#
+#read data for testing
+dataset_test = pd.read_csv('./a.csv', sep=",",header = None, skiprows=1000)
+dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
+dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
+m,n=dataset_test.shape
+testing_set = dataset_test.iloc[:,0:n].values
+testing_set = testing_set[:,1:n]
+
 m,n = testing_set.shape
-ytest = np.zeros((1,lookback,3))
-ytest_ml = np.zeros((nt_steps,3))
+ytest = np.zeros((1,lookback,n))
+ytest_ml = np.zeros((m,n))
 # create input at t= 0 for the model testing
 for i in range(lookback):
     ytest[0,i,:] = testing_set[i]
     ytest_ml[i] = testing_set[i]
 
-for i in range(lookback,nt_steps):
+for i in range(lookback,m):
     slope_ml = model.predict(ytest) # slope from LSTM/ ML model
     ytest_ml[i] = slope_ml
     e = ytest
