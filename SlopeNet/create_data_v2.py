@@ -7,6 +7,17 @@ Created on Mon Mar 25 17:10:27 2019
 """
 import numpy as np
 
+def create_training_data_lstm(_training_set, _m, _n, _lookback):
+    ytrain = [_training_set[i+1] for i in range(_lookback-1,_m-1)]
+    ytrain = np.array(ytrain)
+    xtrain = np.zeros((_m-_lookback,_lookback,_n))
+    for i in range(_m-_lookback):
+        a = _training_set[i]
+        for j in range(1,_lookback):
+            a = np.vstack((a,_training_set[i+j]))
+        xtrain[i] = a
+    
+    return xtrain, ytrain
 
 def create_training_data(training_set, m, n, dt, legs, slopenet):
     if (legs == 2) & (slopenet == "BDF"):
@@ -15,11 +26,11 @@ def create_training_data(training_set, m, n, dt, legs, slopenet):
         return create_training_data_bdf3(training_set, m, n, dt)
     elif (legs == 4) & (slopenet == "BDF"):
         return create_training_data_bdf4(training_set, m, n, dt)
-    elif (legs == 1) & (slopenet == "LEAPFROG"):
+    elif (legs == 1) & ((slopenet == "LEAPFROG") or (slopenet == "LEAPFROG-FILTER")):
         return create_training_data_lf1(training_set, m, n, dt)
-    elif (legs == 2) & (slopenet == "LEAPFROG"):
+    elif (legs == 2) & ((slopenet == "LEAPFROG") or (slopenet == "LEAPFROG-FILTER")):
         return create_training_data_lf2(training_set, m, n, dt)
-    elif (legs == 4) & (slopenet == "LEAPFROG"):
+    elif (legs == 4) & ((slopenet == "LEAPFROG") or (slopenet == "LEAPFROG-FILTER")):
         return create_training_data_lf4(training_set, m, n, dt)
     elif (legs == 1) & (slopenet == "SEQ"):
         return create_training_data_seq1(training_set, m, n, dt)

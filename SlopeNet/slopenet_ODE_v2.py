@@ -30,7 +30,6 @@ def coeff_determination(y_true, y_pred):
     SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
     return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
-
 # time points
 t_init  = 0.0  # Initial time
 t_final = 10.0 # Final time
@@ -40,8 +39,8 @@ dt = (t_final - t_init)/nt_steps
 
 y0 = [1, -0.1, 0]
 training_set = odeint(odemodel,y0,t)
-legs = 4 # No. of legs = 1,2,4
-slopenet = "LEAPFROG" # Choices: BDF, SEQ, EULER, LEAPFROG
+legs = 2 # No. of legs = 1,2,4
+slopenet = "LEAPFROG-FILTER" # Choices: BDF, SEQ, EULER, LEAPFROG
 m,n = training_set.shape
 n = n+1
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
@@ -88,7 +87,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=20, batch_size=200, verbose=1, validation_split= 0.3,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=50, batch_size=200, verbose=1, validation_split= 0.3,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -117,5 +116,11 @@ n = n+1
 # predict results recursively using the model 
 ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
+# sum of L2 norm of each series
+l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)
+
+# export the solution in .csv file for further post processing
+export_results(ytest_ml, testing_set, m, n)
+
 # plot ML prediction and true data
-plot_results(ytest_ml, testing_set, m, n)
+plot_results()

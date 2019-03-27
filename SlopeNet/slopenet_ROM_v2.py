@@ -36,7 +36,7 @@ training_set = training_set[:,1:n]
 #training_set = training_set_scaled
 
 legs = 4 # No. of legs = 1,2,4
-slopenet = "EULER" # Choices: BDF, SEQ, EULER, LEAPFROG
+slopenet = "LEAPFROG-FILTER" # Choices: BDF, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
@@ -102,6 +102,12 @@ testing_set = testing_set[:,1:n]
 # predict results recursively using the model 
 ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
+# sum of L2 norm of each series
+l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)
+
+# export the solution in .csv file for further post processing
+export_results(ytest_ml, testing_set, m, n)
+
 # plot ML prediction and true data
-plot_results(ytest_ml, testing_set, m, n)
+plot_results()
 
