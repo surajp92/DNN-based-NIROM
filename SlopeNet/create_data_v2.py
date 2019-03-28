@@ -55,7 +55,7 @@ def create_training_data_bdf3(_training_set, _m, _n, _dt):
 
 
 def create_training_data_bdf4(_training_set, _m, _n, _dt):
-    ytrain = [((2.0/12.0)*_training_set[i+1]-4.0*_training_set[i]+3.0*_training_set[i-1]
+    ytrain = [((25.0/12.0)*_training_set[i+1]-4.0*_training_set[i]+3.0*_training_set[i-1]
                -(4.0/3.0)*_training_set[i-2]+(1.0/4.0)*_training_set[i-3])/_dt for i in range(3,_m-1)]
     ytrain = np.array(ytrain)
     xtrain = [[_training_set[i-4,:], _training_set[i-3,:], _training_set[i-2,:], _training_set[i-1,:]] for i in range(4,_m)]
