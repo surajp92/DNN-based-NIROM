@@ -36,13 +36,15 @@ t_final = 10.0 # Final time
 nt_steps = 200 # Number of time steps
 t = np.linspace(0,t_final, num=nt_steps)
 dt = (t_final - t_init)/nt_steps
-sigma = 0.1
+sigma = 0.05
 y0 = [1, -0.1, 0]
 training_set = odeint(odemodel,y0,t)
-legs = 1 # No. of legs = 1,2,4
-slopenet = "LEAPFROG-FILTER" # Choices: BDF, SEQ, EULER, LEAPFROG
+legs = 4 # No. of legs = 1,2,4 
+slopenet = "BDF4" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 m,n = training_set.shape
 n = n+1
+problem = "ODE"
+
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
 # additional data for training with random initial condition
@@ -74,11 +76,11 @@ input_layer = Input(shape=(legs*(n-1),))
 #model.add(Dropout(0.2))
 
 # Hidden layers
-x = Dense(100, activation='relu', use_bias=True)(input_layer)
-x = Dense(100, activation='relu', use_bias=True)(x)
-x = Dense(100, activation='relu', use_bias=True)(x)
-x = Dense(100, activation='relu', use_bias=True)(x)
-x = Dense(100, activation='relu', use_bias=True)(x)
+x = Dense(100, activation='tanh', use_bias=True)(input_layer)
+x = Dense(100, activation='tanh', use_bias=True)(x)
+#x = Dense(100, activation='relu', use_bias=True)(x)
+#x = Dense(100, activation='relu', use_bias=True)(x)
+#x = Dense(100, activation='relu', use_bias=True)(x)
 
 op_val = Dense(3, activation='linear', use_bias=True)(x)
 custom_model = Model(inputs=input_layer, outputs=op_val)
@@ -87,7 +89,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=50, batch_size=200, verbose=1, validation_split= 0.3,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=500, batch_size=100, verbose=1, validation_split= 0.3,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -106,21 +108,34 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
-y2s = -0.1*(0.25)
+y2s = 0.1*(0.25)
 y0test = [1, y2s, 0]
-testing_set = odeint(odemodel,y0test,t)
-m,n = testing_set.shape
+testing_set1 = odeint(odemodel,y0test,t)
+m,n = testing_set1.shape
 n = n+1
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
-ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma)
+ytest_ml1 = model_predict(testing_set1, m, n, dt, legs, slopenet, sigma)
 
 # sum of L2 norm of each series
-l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)
+l2norm_sum1, l2norm_nd1 = calculate_l2norm(ytest_ml1, testing_set1, m, n, legs, slopenet, problem, y2s)
+
+y2s = -0.1*(0.25)
+y0test = [1, y2s, 0]
+testing_set2 = odeint(odemodel,y0test,t)
+m,n = testing_set2.shape
+n = n+1
+
+ytest_ml2 = model_predict(testing_set2, m, n, dt, legs, slopenet, sigma)
+
+# sum of L2 norm of each series
+l2norm_sum2, l2norm_nd2 = calculate_l2norm(ytest_ml2, testing_set2, m, n, legs, slopenet, problem, y2s)
 
 # export the solution in .csv file for further post processing
-export_results(ytest_ml, testing_set, m, n)
+ytest_ml = np.hstack((ytest_ml1, ytest_ml2))
+testing_set = np.hstack((testing_set1, testing_set2))
+export_results_ode(ytest_ml, testing_set, m, n)
 
 # plot ML prediction and true data
-plot_results()
+plot_results_ode()

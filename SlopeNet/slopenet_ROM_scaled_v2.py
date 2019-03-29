@@ -23,18 +23,18 @@ def coeff_determination(y_true, y_pred):
     return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
 #--------------------------------------------------------------------------------------------------------------#
-dataset_train = pd.read_csv('./a.csv', sep=",",skiprows=0,header = None, nrows=1000)
+dataset_train = pd.read_csv('./b.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 time = training_set[:,0]
 dt = training_set[1,0] - training_set[0,0]
 training_set = training_set[:,1:n]
 
-#from sklearn.preprocessing import MinMaxScaler
-#sc = MinMaxScaler(feature_range=(0,1))
-#training_set_scaled = sc.fit_transform(training_set)
-#training_set_scaled.shape
-#training_set = training_set_scaled
+from sklearn.preprocessing import MinMaxScaler
+sc = MinMaxScaler(feature_range=(0,1))
+training_set_scaled = sc.fit_transform(training_set)
+training_set_scaled.shape
+training_set = training_set_scaled
 
 legs = 4 # No. of legs = 1,2,4 (BDF 2,3,4)
 slopenet = "BDF4" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
@@ -95,7 +95,7 @@ plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./a.csv', sep=",",header = None, skiprows=0, nrows=2000)
+dataset_test = pd.read_csv('./b.csv', sep=",",header = None, skiprows=0, nrows=2000)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape
@@ -103,9 +103,22 @@ testing_set = dataset_test.iloc[:,0:n].values
 time = testing_set[:,0]
 testing_set = testing_set[:,1:n]
 
+testing_set_scaled = sc.fit_transform(testing_set)
+testing_set_scaled.shape
+testing_set= testing_set_scaled
+
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
 ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma)
+
+ytest_ml_unscaled = sc.inverse_transform(ytest_ml)
+ytest_ml_unscaled.shape
+ytest_ml= ytest_ml_unscaled
+
+testing_set_unscaled = sc.inverse_transform(testing_set)
+testing_set_unscaled.shape
+testing_set= testing_set_unscaled
+
 
 # sum of L2 norm of each series
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem)

@@ -39,7 +39,7 @@ nt_steps = 200 # Number of time steps
 t = np.linspace(0,t_final, num=nt_steps)
 dt = (t_final - t_init)/nt_steps
 lookback = 4
-
+problem = "ODE"
 # initial condition
 y0 = [1, -0.1, 0]
 # solve ODE
@@ -89,18 +89,19 @@ plt.show()
 y2s = 0.1*0.25
 y0test = [1, y2s, 0]
 # solve ODE
-testing_set = odeint(odemodel,y0test,t)
-m,n = testing_set.shape
+testing_set1 = odeint(odemodel,y0test,t)
+m,n = testing_set1.shape
+n = n+1
 ytest = np.zeros((1,lookback,3))
-ytest_ml = np.zeros((nt_steps,3))
+ytest_ml1 = np.zeros((nt_steps,3))
 # create input at t= 0 for the model testing
 for i in range(lookback):
-    ytest[0,i,:] = testing_set[i]
-    ytest_ml[i] = testing_set[i]
+    ytest[0,i,:] = testing_set1[i]
+    ytest_ml1[i] = testing_set1[i]
 
 for i in range(lookback,nt_steps):
     slope_ml = model.predict(ytest) # slope from LSTM/ ML model
-    ytest_ml[i] = slope_ml
+    ytest_ml1[i] = slope_ml
     e = ytest
     for i in range(lookback-1):
         e[0,i,:] = e[0,i+1,:]
@@ -111,13 +112,44 @@ for i in range(lookback,nt_steps):
 #ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
 # sum of L2 norm of each series
-l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n)
+l2norm_sum1, l2norm_nd1 = calculate_l2norm(ytest_ml1, testing_set1, m, n, lookback, "LSTM", problem, y2s)
+
+
+y2s = -0.1*0.25
+y0test = [1, y2s, 0]
+# solve ODE
+testing_set2 = odeint(odemodel,y0test,t)
+m,n = testing_set2.shape
+n = n+1
+ytest = np.zeros((1,lookback,3))
+ytest_ml2 = np.zeros((nt_steps,3))
+# create input at t= 0 for the model testing
+for i in range(lookback):
+    ytest[0,i,:] = testing_set2[i]
+    ytest_ml2[i] = testing_set2[i]
+
+for i in range(lookback,nt_steps):
+    slope_ml = model.predict(ytest) # slope from LSTM/ ML model
+    ytest_ml2[i] = slope_ml
+    e = ytest
+    for i in range(lookback-1):
+        e[0,i,:] = e[0,i+1,:]
+    e[0,lookback-1,:] = slope_ml
+    ytest = e 
+
+# predict results recursively using the model 
+#ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
+
+# sum of L2 norm of each series
+l2norm_sum2, l2norm_nd2 = calculate_l2norm(ytest_ml2, testing_set2, m, n, lookback, "LSTM", problem, y2s)
 
 # export the solution in .csv file for further post processing
-export_results(ytest_ml, testing_set, m, n)
+ytest_ml = np.hstack((ytest_ml1, ytest_ml2))
+testing_set = np.hstack((testing_set1, testing_set2))
+export_results_ode(ytest_ml, testing_set, m, n)
 
 # plot ML prediction and true data
-plot_results()
+plot_results_ode()
 
 
 
