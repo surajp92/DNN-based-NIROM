@@ -159,7 +159,7 @@ def model_predict_bdf24(_testing_set, _m, _n, _dt):
         ytemp = ytemp.reshape(1,4*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,4*(_n-1)) #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,4*(_n-1)) 
     
     return ytest_ml
 
@@ -179,14 +179,14 @@ def model_predict_bdf31(_testing_set, _m, _n, _dt):
     
     for i in range(3,_testing_set.shape[0]):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
-        a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] # y1 at next time step
+        a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] 
         ytest_ml = np.vstack((ytest_ml, a))
         e = a.reshape(1,_n-1)
         ytemp = ytest[0]
         ytemp = ytemp.reshape(1,1*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,1*(_n-1)) #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,1*(_n-1)) 
         
     return ytest_ml
 
@@ -213,7 +213,7 @@ def model_predict_bdf32(_testing_set, _m, _n, _dt):
         ytemp = ytemp.reshape(1,2*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,2*(_n-1)) #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,2*(_n-1)) 
         
     return ytest_ml
 
@@ -240,7 +240,7 @@ def model_predict_bdf33(_testing_set, _m, _n, _dt):
         ytemp = ytemp.reshape(1,3*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,3*(_n-1)) #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,3*(_n-1)) 
         
     return ytest_ml
 
@@ -268,7 +268,7 @@ def model_predict_bdf34(_testing_set, _m, _n, _dt):
         ytemp = ytemp.reshape(1,4*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,4*(_n-1)) #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,4*(_n-1)) 
         
     return ytest_ml
 
@@ -477,7 +477,7 @@ def model_predict_lf4(_testing_set, _m, _n, _dt):
         ytemp = ytemp.reshape(1,4*(_n-1))
         ee = np.concatenate((ytemp,e), axis = 1)
         ee = ee[0,_n-1:]
-        ytest = ee.reshape(1,4*(_n-1))  #np.vstack((ytest, ee)) # add [y1, y2, y3] at (n+1) to input test for next slope prediction
+        ytest = ee.reshape(1,4*(_n-1))  
     
     return ytest_ml
 

@@ -137,11 +137,8 @@ def create_training_data_bdf42(_training_set, _m, _n, _dt):
     xtrain = xtrain.reshape(_m-4,2*(_n-1))
     return xtrain, ytrain
 
-<<<<<<< HEAD
+
 def create_training_data_bdf44(_training_set, _m, _n, _dt):
-=======
-def create_training_data_bdf4(_training_set, _m, _n, _dt):
->>>>>>> 17bec71dfbbc5d5509c1a9b1e71d2ce507f7d9ce
     ytrain = [((25.0/12.0)*_training_set[i+1]-4.0*_training_set[i]+3.0*_training_set[i-1]
                -(4.0/3.0)*_training_set[i-2]+(1.0/4.0)*_training_set[i-3])/_dt for i in range(3,_m-1)]
     ytrain = np.array(ytrain)
@@ -183,7 +180,7 @@ def create_training_data_seq1(_training_set, _m, _n, _dt):
     return xtrain, ytrain
 
 
-# updated
+
 def create_training_data_seq2(_training_set, _m, _n, _dt):
     ytrain = [_training_set[i+2] for i in range(_m-2)]
     ytrain = np.array(ytrain)

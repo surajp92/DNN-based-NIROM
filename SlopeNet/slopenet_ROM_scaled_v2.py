@@ -23,7 +23,7 @@ def coeff_determination(y_true, y_pred):
     return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
 #--------------------------------------------------------------------------------------------------------------#
-dataset_train = pd.read_csv('./b.csv', sep=",",skiprows=0,header = None, nrows=1000)
+dataset_train = pd.read_csv('./c.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 time = training_set[:,0]
@@ -36,7 +36,7 @@ training_set_scaled = sc.fit_transform(training_set)
 training_set_scaled.shape
 training_set = training_set_scaled
 
-legs = 4 # No. of legs = 1,2,4 (BDF 2,3,4)
+legs = 4 # No. of legs = 1,2,4 
 slopenet = "BDF4" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 sigma = 0.1
 problem = "ROM"
@@ -95,7 +95,7 @@ plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./b.csv', sep=",",header = None, skiprows=0, nrows=2000)
+dataset_test = pd.read_csv('./c.csv', sep=",",header = None, skiprows=0, nrows=2000)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape

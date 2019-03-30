@@ -102,7 +102,6 @@ for i in range(lookback,m):
     ytest = e 
 
 # predict results recursively using the model 
-#ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 n = n+1 # this is how export data code is written
 
 ytest_ml_unscaled = sc.inverse_transform(ytest_ml)

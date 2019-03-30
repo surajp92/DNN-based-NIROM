@@ -108,8 +108,6 @@ for i in range(lookback,nt_steps):
     e[0,lookback-1,:] = slope_ml
     ytest = e 
 
-# predict results recursively using the model 
-#ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
 # sum of L2 norm of each series
 l2norm_sum1, l2norm_nd1 = calculate_l2norm(ytest_ml1, testing_set1, m, n, lookback, "LSTM", problem, y2s)
@@ -136,9 +134,6 @@ for i in range(lookback,nt_steps):
         e[0,i,:] = e[0,i+1,:]
     e[0,lookback-1,:] = slope_ml
     ytest = e 
-
-# predict results recursively using the model 
-#ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet)
 
 # sum of L2 norm of each series
 l2norm_sum2, l2norm_nd2 = calculate_l2norm(ytest_ml2, testing_set2, m, n, lookback, "LSTM", problem, y2s)
