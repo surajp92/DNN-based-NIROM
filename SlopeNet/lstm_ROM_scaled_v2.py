@@ -25,7 +25,7 @@ from create_data_v2 import *
 from model_prediction_v2 import *
 from export_data_v2 import *
 
-dataset_train = pd.read_csv('./b.csv', sep=",",skiprows=0,header = None, nrows=1000)
+dataset_train = pd.read_csv('./c.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 dt = training_set[1,0] - training_set[0,0]
@@ -71,7 +71,7 @@ plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./b.csv', sep=",",header = None, skiprows=0)
+dataset_test = pd.read_csv('./c.csv', sep=",",header = None, skiprows=0)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape

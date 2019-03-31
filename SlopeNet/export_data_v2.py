@@ -15,9 +15,9 @@ def plot_results_rom():
     time = solution[:,0]
     time_test = solution[0:1000,0]
     time_pred = solution[1000:,0]
-    ytrue = solution[:,1:11]
-    ytestplot = solution[0:1000,11:]
-    ypredplot = solution[1000:,11:]
+    ytrue = solution[:,1:int((n-1)/2+1)]
+    ytestplot = solution[0:1000,int((n-1)/2+1):]
+    ypredplot = solution[1000:,int((n-1)/2+1):]
     for i in range(int(n/2)):
         plt.figure()    
         plt.plot(time,ytrue[:,i], 'r-', label=r'$y_'+str(i+1)+'$'+' (True)')

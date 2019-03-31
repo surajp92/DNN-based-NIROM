@@ -11,11 +11,15 @@ import matplotlib.pyplot as plt
 from keras.models import load_model, Model
 from keras import backend as K
 
-
+#--------------------------------------------------------------------------------------------------------------#
 def coeff_determination(y_true, y_pred):
         SS_res =  K.sum(K.square( y_true-y_pred ))
         SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
         return ( 1 - SS_res/(SS_tot + K.epsilon()) )
+    
+#--------------------------------------------------------------------------------------------------------------#
+def customloss(y_true, y_pred):
+    return K.mean(K.square(y_pred - y_true), axis=-1)
 
 def model_predict_lstm(_testing_set, _m, _n, _lookback):
     
@@ -590,7 +594,7 @@ def model_predict_seq4(_testing_set, _m, _n, _dt):
 
 def model_predict_e1(_testing_set, _m, _n, _dt):
     print("e1")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination, 'customloss': customloss})
 
     ytest = [_testing_set[0]]
     ytest = np.array(ytest)
@@ -609,7 +613,7 @@ def model_predict_e1(_testing_set, _m, _n, _dt):
 
 def model_predict_e2(_testing_set, _m, _n, _dt):
     print("e2")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination, 'customloss': customloss})
 
     ytest = [_testing_set[0], _testing_set[1]]
     ytest = np.array(ytest)

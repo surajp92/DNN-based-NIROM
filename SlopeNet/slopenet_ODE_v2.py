@@ -40,12 +40,15 @@ sigma = 0.05
 y0 = [1, -0.1, 0]
 training_set = odeint(odemodel,y0,t)
 legs = 4 # No. of legs = 1,2,4 
-slopenet = "BDF4" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
+slopenet = "LEAPFROG-FILTER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 m,n = training_set.shape
 n = n+1
 problem = "ODE"
 
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
+
+
+
 
 # additional data for training with random initial condition
 for i in range(-9,11):
@@ -89,7 +92,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=500, batch_size=100, verbose=1, validation_split= 0.3,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=500, batch_size=80, verbose=1, validation_split= 0.3,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
