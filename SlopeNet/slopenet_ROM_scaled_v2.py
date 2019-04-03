@@ -35,7 +35,7 @@ def customloss(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 #--------------------------------------------------------------------------------------------------------------#
-dataset_train = pd.read_csv('./a.csv', sep=",",skiprows=0,header = None, nrows=1000)
+dataset_train = pd.read_csv('./b.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 time = training_set[:,0]
@@ -48,9 +48,9 @@ training_set_scaled = sc.fit_transform(training_set)
 training_set_scaled.shape
 training_set = training_set_scaled
 
-legs = 1 # No. of legs = 1,2,4 
-slopenet = "EULER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
-sigma = 0.1
+legs = 4 # No. of legs = 1,2,4 
+slopenet = "LEAPFROG-FILTER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
+sigma = 0.03
 problem = "ROM"
 
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
@@ -59,8 +59,6 @@ xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 #
 #xtrain = xtrain[indices]
 #ytrain = ytrain[indices]
-
-
 
 #--------------------------------------------------------------------------------------------------------------#
 # create the LSTM model
@@ -86,8 +84,8 @@ filepath = "best_model.hd5"
 checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
 callbacks_list = [checkpoint]
 
-custom_model.compile(optimizer='adam', loss=customloss, metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=1, batch_size=80, verbose=1, validation_split= 0.1,
+custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
+history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=90, verbose=1, validation_split= 0.1,
                                     callbacks=callbacks_list)
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -109,7 +107,7 @@ plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./a.csv', sep=",",header = None, skiprows=0, nrows=2000)
+dataset_test = pd.read_csv('./b.csv', sep=",",header = None, skiprows=0, nrows=2000)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape

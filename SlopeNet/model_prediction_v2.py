@@ -594,7 +594,7 @@ def model_predict_seq4(_testing_set, _m, _n, _dt):
 
 def model_predict_e1(_testing_set, _m, _n, _dt):
     print("e1")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination, 'customloss': customloss})
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
     ytest = [_testing_set[0]]
     ytest = np.array(ytest)
@@ -613,7 +613,7 @@ def model_predict_e1(_testing_set, _m, _n, _dt):
 
 def model_predict_e2(_testing_set, _m, _n, _dt):
     print("e2")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination, 'customloss': customloss})
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
     ytest = [_testing_set[0], _testing_set[1]]
     ytest = np.array(ytest)
