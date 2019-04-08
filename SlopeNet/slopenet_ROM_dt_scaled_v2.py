@@ -36,21 +36,30 @@ def customloss(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 #--------------------------------------------------------------------------------------------------------------#
-dataset_train = pd.read_csv('./b.csv', sep=",",skiprows=0,header = None, nrows=1000)
+dataset_train = pd.read_csv('./a.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 time = training_set[:,0]
 dt = training_set[1,0] - training_set[0,0]
 training_set = training_set[:,1:n]
 
-from sklearn.preprocessing import MinMaxScaler
-sc = MinMaxScaler(feature_range=(0,1))
-training_set_scaled = sc.fit_transform(training_set)
-training_set_scaled.shape
-training_set = training_set_scaled
+#from sklearn.preprocessing import MinMaxScaler
+#sc = MinMaxScaler(feature_range=(0,1))
+#training_set_scaled = sc.fit_transform(training_set)
+#training_set_scaled.shape
+#training_set = training_set_scaled
+
+# arrange trainig data
+dt_scaling = 4.0
+indices = [int(dt_scaling*i) for i in range(int(m/dt_scaling))]
+set1 = training_set[indices]
+training_set = set1
+dt = dt*dt_scaling
+m,n = training_set.shape
+n = n+1
 
 legs = 4 # No. of legs = 1,2,4 
-slopenet = "LEAPFROG-FILTER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
+slopenet = "EULER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 sigma = 0.06
 problem = "ROM"
 
@@ -59,7 +68,6 @@ start_train = cputime.time()
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
 #indices = np.random.randint(0,xtrain.shape[0],500)
-#
 #xtrain = xtrain[indices]
 #ytrain = ytrain[indices]
 
@@ -111,36 +119,29 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
+#%%
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./b.csv', sep=",",header = None, skiprows=0, nrows=2000)
+dataset_test = pd.read_csv('./a.csv', sep=",",header = None, skiprows=0, nrows=2000)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape
 testing_set = dataset_test.iloc[:,0:n].values
 time = testing_set[:,0]
 testing_set = testing_set[:,1:n]
+indices_test = [int(dt_scaling*i) for i in range(int(m/dt_scaling))]
 
-testing_set_scaled = sc.fit_transform(testing_set)
-testing_set_scaled.shape
-testing_set= testing_set_scaled
+#%%
+#testing_set_scaled = sc.fit_transform(testing_set)
+#testing_set_scaled.shape
+#testing_set= testing_set_scaled
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
 start_test = cputime.time()
-dt1 = dt*1.0
+dt1 = dt
+m = int(m/dt_scaling)
 ytest_ml = model_predict(testing_set, m, n, dt1, legs, slopenet, sigma)
-
-ytest_ml_unscaled = sc.inverse_transform(ytest_ml)
-ytest_ml_unscaled.shape
-ytest_ml= ytest_ml_unscaled
-
-testing_set_unscaled = sc.inverse_transform(testing_set)
-testing_set_unscaled.shape
-testing_set= testing_set_unscaled
-
-# sum of L2 norm of each series
-l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem)
 
 end_test = cputime.time()
 test_time = end_test - start_test
@@ -151,9 +152,43 @@ with open('time.csv', 'a') as f:
     for item in list:
         f.write("%s\t" % item)
 
-# export the solution in .csv file for further post processing
-export_results_rom(ytest_ml, testing_set, time, m, n)
+#ytest_ml_unscaled = sc.inverse_transform(ytest_ml)
+#ytest_ml_unscaled.shape
+#ytest_ml= ytest_ml_unscaled
+#
+#testing_set_unscaled = sc.inverse_transform(testing_set)
+#testing_set_unscaled.shape
+#testing_set= testing_set_unscaled
 
-# plot ML prediction and true data
-plot_results_rom(dt1)
+time = time-900
+time_test = time.reshape(int(dt_scaling*m),1)
+testing_set = np.hstack((time_test, testing_set))
+time_mlpred = time[indices_test]
+time_mlpred = time_mlpred.reshape(m,1)
+ytest_ml = np.hstack((time_mlpred, ytest_ml))
 
+np.savetxt("testing_data.csv", testing_set, delimiter=",")
+np.savetxt("ml_solution.csv", ytest_ml, delimiter=",")
+
+#plotting
+ytest_mltrain = ytest_ml[0:int(m/2.0)]
+ytest_mlpred = ytest_ml[int(m/2.0):]
+
+#%%
+for i in range(1,n):
+    plt.figure()    
+    plt.plot(testing_set[:,0],testing_set[:,i], 'r-', label=r'$y_'+str(i+1)+'$'+' (True)')
+    plt.plot(ytest_mltrain[:,0],ytest_mltrain[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (ML Test)')
+    plt.plot(ytest_mlpred[:,0],ytest_mlpred[:,i], 'g-', label=r'$y_'+str(1+1)+'$'+' (ML Pred)')
+    plt.ylabel('Response')
+    plt.xlabel('Time')
+    plt.legend(loc='best')
+    name = 'a='+str(i+1)+'.eps'
+        #plt.savefig(name, dpi = 400)
+    plt.show()
+
+#%%    
+# sum of L2 norm of each series
+testing_set_l2norm = testing_set[indices_test]
+testing_set_l2norm = testing_set_l2norm[:,1:] 
+l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml[:,1:], testing_set_l2norm, m, n, legs, slopenet, problem)

@@ -16,6 +16,7 @@ from random import uniform
 from create_data_v2 import * 
 from model_prediction_v2 import *
 from export_data_v2 import *
+import time as cputime
 
 # function that returns dy/dt
 def odemodel(y,t):
@@ -38,17 +39,22 @@ t = np.linspace(0,t_final, num=nt_steps)
 dt = (t_final - t_init)/nt_steps
 sigma = 0.05
 y0 = [1, -0.1, 0]
+
+start_ode = cputime.time()
+
 training_set = odeint(odemodel,y0,t)
+
+end_ode = cputime.time()
+ode_time = end_ode-start_ode
+
 legs = 4 # No. of legs = 1,2,4 
 slopenet = "LEAPFROG-FILTER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 m,n = training_set.shape
 n = n+1
 problem = "ODE"
 
+start_train = cputime.time()
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
-
-
-
 
 # additional data for training with random initial condition
 for i in range(-9,11):
@@ -103,6 +109,8 @@ scores = custom_model.evaluate(xtrain, ytrain)
 print("\n%s: %.2f%%" % (custom_model.metrics_names[1], scores[1]*100))
 
 epochs = range(1, len(loss_history) + 1)
+end_train = cputime.time()
+train_time = end_train-start_train
 
 plt.figure()
 plt.plot(epochs, loss_history, 'b', label='Training loss')
@@ -119,10 +127,19 @@ n = n+1
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
+start_test1 = cputime.time()
 ytest_ml1 = model_predict(testing_set1, m, n, dt, legs, slopenet, sigma)
 
 # sum of L2 norm of each series
 l2norm_sum1, l2norm_nd1 = calculate_l2norm(ytest_ml1, testing_set1, m, n, legs, slopenet, problem, y2s)
+
+end_test1 = cputime.time()
+test_time1 = end_test1-start_test1
+list = [legs, slopenet, problem, train_time, test_time1, train_time+test_time1, ode_time, y2s]
+with open('time.csv', 'a') as f:
+    f.write("\n")
+    for item in list:
+        f.write("%s\t" % item)
 
 y2s = -0.1*(0.25)
 y0test = [1, y2s, 0]
@@ -130,11 +147,20 @@ testing_set2 = odeint(odemodel,y0test,t)
 m,n = testing_set2.shape
 n = n+1
 
+start_test2 = cputime.time()
 ytest_ml2 = model_predict(testing_set2, m, n, dt, legs, slopenet, sigma)
 
 # sum of L2 norm of each series
 l2norm_sum2, l2norm_nd2 = calculate_l2norm(ytest_ml2, testing_set2, m, n, legs, slopenet, problem, y2s)
 
+end_test2 = cputime.time()
+test_time2 = end_test2-start_test2
+list = [legs, slopenet, problem, train_time, test_time2, train_time+test_time2, ode_time, y2s]
+with open('time.csv', 'a') as f:
+    f.write("\n")
+    for item in list:
+        f.write("%s\t" % item)
+        
 # export the solution in .csv file for further post processing
 ytest_ml = np.hstack((ytest_ml1, ytest_ml2))
 testing_set = np.hstack((testing_set1, testing_set2))

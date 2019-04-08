@@ -100,7 +100,7 @@ def model_predict_bdf21(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
       
-    for i in range(2,_testing_set.shape[0]):
+    for i in range(2,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (4.0/3.0)*ytest_ml[i-1]- (1.0/3.0)*ytest_ml[i-2] + (2.0/3.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -126,7 +126,7 @@ def model_predict_bdf22(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
       
-    for i in range(2,_testing_set.shape[0]):
+    for i in range(2,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (4.0/3.0)*ytest_ml[i-1]- (1.0/3.0)*ytest_ml[i-2] + (2.0/3.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -154,7 +154,7 @@ def model_predict_bdf24(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
       
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (4.0/3.0)*ytest_ml[i-1]- (1.0/3.0)*ytest_ml[i-2] + (2.0/3.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -181,7 +181,7 @@ def model_predict_bdf31(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     
-    for i in range(3,_testing_set.shape[0]):
+    for i in range(3,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] 
         ytest_ml = np.vstack((ytest_ml, a))
@@ -208,7 +208,7 @@ def model_predict_bdf32(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     
-    for i in range(3,_testing_set.shape[0]):
+    for i in range(3,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -235,7 +235,7 @@ def model_predict_bdf33(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     
-    for i in range(3,_testing_set.shape[0]):
+    for i in range(3,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -263,7 +263,7 @@ def model_predict_bdf34(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
     
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (18.0/11.0)*ytest_ml[i-1]- (9.0/11.0)*ytest_ml[i-2]+(2.0/11.0)* ytest_ml[i-3]+ (6.0/11.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -291,7 +291,7 @@ def model_predict_bdf41(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
     
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (48.0/25.0)*ytest_ml[i-1]- (36.0/25.0)*ytest_ml[i-2]+(16.0/25.0)*ytest_ml[i-3]-(3.0/25.0)*ytest_ml[i-4]+(12.0/25.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -319,7 +319,7 @@ def model_predict_bdf42(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
     
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (48.0/25.0)*ytest_ml[i-1]- (36.0/25.0)*ytest_ml[i-2]+(16.0/25.0)*ytest_ml[i-3]-(3.0/25.0)*ytest_ml[i-4]+(12.0/25.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -347,7 +347,7 @@ def model_predict_bdf44(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
     
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = (48.0/25.0)*ytest_ml[i-1]- (36.0/25.0)*ytest_ml[i-2]+(16.0/25.0)*ytest_ml[i-3]-(3.0/25.0)*ytest_ml[i-4]+(12.0/25.0)*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -373,7 +373,7 @@ def model_predict_lf1(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
     
-    for i in range(1,_testing_set.shape[0]-1):
+    for i in range(1,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 2.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -395,7 +395,7 @@ def model_predict_lff1(_testing_set, _m, _n, _dt, sigma):
     yf_ml = np.zeros((_m,_n-1))
     yf_ml[0] = _testing_set[0]
     
-    for i in range(1,_testing_set.shape[0]-1):
+    for i in range(1,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
         ytest_ml[i+1] = a
@@ -416,7 +416,7 @@ def model_predict_lf2(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
     
-    for i in range(1,_testing_set.shape[0]-1):
+    for i in range(1,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 2.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -443,7 +443,7 @@ def model_predict_lff2(_testing_set, _m, _n, _dt, sigma):
     yf_ml = [_testing_set[0]]
     yf_ml = np.array(yf_ml)
     
-    for i in range(1,_testing_set.shape[0]-1):
+    for i in range(1,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
         ytest_ml = np.vstack((ytest_ml, a))
@@ -472,7 +472,7 @@ def model_predict_lf4(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
     
-    for i in range(3,_testing_set.shape[0]-1):
+    for i in range(3,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 2.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -503,7 +503,7 @@ def model_predict_lff4(_testing_set, _m, _n, _dt, sigma):
     yf_ml = np.vstack((yf_ml, _testing_set[1]))
     yf_ml = np.vstack((yf_ml, _testing_set[2]))
     
-    for i in range(3,_testing_set.shape[0]-1):
+    for i in range(3,_m-1):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = yf_ml[i-1] + 2.0*_dt*slope_ml
         ytest_ml = np.vstack((ytest_ml, a))
@@ -529,7 +529,7 @@ def model_predict_seq1(_testing_set, _m, _n, _dt):
     ytest_ml = [_testing_set[0]]
     ytest_ml = np.array(ytest_ml)
     
-    for i in range(1,_testing_set.shape[0]):
+    for i in range(1,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = 1.0*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -551,7 +551,7 @@ def model_predict_seq2(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
 
-    for i in range(2,_testing_set.shape[0]):
+    for i in range(2,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = 1.0*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -578,7 +578,7 @@ def model_predict_seq4(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
 
-    for i in range(4,_testing_set.shape[0]):
+    for i in range(4,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = 1.0*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -602,7 +602,7 @@ def model_predict_e1(_testing_set, _m, _n, _dt):
     ytest_ml = [_testing_set[0]]
     ytest_ml = np.array(ytest_ml)
 
-    for i in range(1,_testing_set.shape[0]):
+    for i in range(1,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 1.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -623,7 +623,7 @@ def model_predict_e2(_testing_set, _m, _n, _dt):
     ytest_ml = np.array(ytest_ml)
     ytest_ml = np.vstack((ytest_ml, _testing_set[1]))
 
-    for i in range(2,_testing_set.shape[0]):
+    for i in range(2,_m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 1.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))
@@ -651,7 +651,7 @@ def model_predict_e4(_testing_set, _m, _n, _dt):
     ytest_ml = np.vstack((ytest_ml, _testing_set[2]))
     ytest_ml = np.vstack((ytest_ml, _testing_set[3]))
 
-    for i in range(4, _testing_set.shape[0]):
+    for i in range(4, _m):
         slope_ml = custom_model.predict(ytest) # slope from LSTM/ ML model
         a = ytest_ml[i-1] + 1.0*_dt*slope_ml[0] # y1 at next time step
         ytest_ml = np.vstack((ytest_ml, a))

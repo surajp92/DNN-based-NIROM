@@ -9,15 +9,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-def plot_results_rom():
+def plot_results_rom(dt1):
     solution = np.loadtxt(open("solution.csv", "rb"), delimiter=",", skiprows=0)
     m,n = solution.shape
-    time = solution[:,0]
-    time_test = solution[0:1000,0]
-    time_pred = solution[1000:,0]
+    time = solution[:,0]-900
+    dt = time[1] - time[0]
+    time_test = solution[0:1000,0]-900
+    time_pred = solution[1000:,0]-900
     ytrue = solution[:,1:int((n-1)/2+1)]
     ytestplot = solution[0:1000,int((n-1)/2+1):]
     ypredplot = solution[1000:,int((n-1)/2+1):]
+    time_test = np.linspace(0,50*dt1/dt,1000)
+    time_pred = np.linspace(50*dt1/dt,100*dt1/dt,1000)
     for i in range(int(n/2)):
         plt.figure()    
         plt.plot(time,ytrue[:,i], 'r-', label=r'$y_'+str(i+1)+'$'+' (True)')
@@ -69,7 +72,10 @@ def calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem, y2s=0
         l2norm_true += LA.norm(testing_set[:,i])
     
     l2norm_nd = l2norm_sum/l2norm_true
-    list = [legs, slopenet, problem, l2norm_nd, l2norm_sum, l2norm_true, y2s]
+    
+    rmse = l2norm_sum/np.sqrt(m)
+    
+    list = [legs, slopenet, problem, l2norm_nd, l2norm_sum, l2norm_true, y2s, rmse]
     with open('l2norm.csv', 'a') as f:
         f.write("\n")
         for item in list:
