@@ -9,8 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-def plot_results_rom(dt1):
-    solution = np.loadtxt(open("solution.csv", "rb"), delimiter=",", skiprows=0)
+def plot_results_rom(dt1, slopenet, legs):
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
+    solution = np.loadtxt(open(filename, "rb"), delimiter=",", skiprows=0)
     m,n = solution.shape
     time = solution[:,0]-900
     dt = time[1] - time[0]
@@ -19,13 +20,13 @@ def plot_results_rom(dt1):
     ytrue = solution[:,1:int((n-1)/2+1)]
     ytestplot = solution[0:1000,int((n-1)/2+1):]
     ypredplot = solution[1000:,int((n-1)/2+1):]
-    time_test = np.linspace(0,50*dt1/dt,1000)
-    time_pred = np.linspace(50*dt1/dt,100*dt1/dt,1000)
+    time_test = time[0:1000]
+    time_pred = time[1000:]
     for i in range(int(n/2)):
         plt.figure()    
         plt.plot(time,ytrue[:,i], 'r-', label=r'$y_'+str(i+1)+'$'+' (True)')
-        plt.plot(time_test,ytestplot[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (ML Test)')
-        plt.plot(time_pred,ypredplot[:,i], 'g-', label=r'$y_'+str(1+1)+'$'+' (ML Pred)')
+        plt.plot(time[0:1000],ytestplot[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (ML Test)')
+        plt.plot(time[1000:],ypredplot[:,i], 'g-', label=r'$y_'+str(1+1)+'$'+' (ML Pred)')
         #plt.plot(solution[:,i+int(n/2)], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
         plt.ylabel('Response')
         plt.xlabel('Time')
@@ -34,8 +35,9 @@ def plot_results_rom(dt1):
         #plt.savefig(name, dpi = 400)
         plt.show()
 
-def plot_results_ode():
-    solution = np.loadtxt(open("solution.csv", "rb"), delimiter=",", skiprows=0)
+def plot_results_ode(slopenet, legs):
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
+    solution = np.loadtxt(open(filename, "rb"), delimiter=",", skiprows=0)
     m,n = solution.shape
     for i in range(3):
         plt.figure()    
@@ -45,7 +47,7 @@ def plot_results_ode():
         plt.xlabel('Time')
         plt.legend(loc='best')
         name = 'a='+str(i+1)+'.eps'
-        plt.savefig(name, dpi = 400)
+        #plt.savefig(name, dpi = 400)
         plt.show()
     
     for i in range(3,6):
@@ -56,7 +58,7 @@ def plot_results_ode():
         plt.xlabel('Time')
         plt.legend(loc='best')
         name = 'a='+str(i+1)+'.eps'
-        plt.savefig(name, dpi = 400)
+        #plt.savefig(name, dpi = 400)
         plt.show()
 
 def calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem, y2s=0.0):
@@ -83,14 +85,16 @@ def calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem, y2s=0
         
     return l2norm_sum, l2norm_nd
 
-def export_results_rom(ytest_ml, testing_set, time, m, n):
+def export_results_rom(ytest_ml, testing_set, time, m, n, slopenet, legs):
     # export result in x y format for further plotting
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
     time = time.reshape(m,1)
     results = np.hstack((time, testing_set, ytest_ml))
-    np.savetxt("solution.csv", results, delimiter=",")
+    np.savetxt(filename, results, delimiter=",")
     
-def export_results_ode(ytest_ml, testing_set, m, n):
+def export_results_ode(ytest_ml, testing_set, m, n, slopenet, legs):
     # export result in x y format for further plotting
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
     results = np.hstack((testing_set, ytest_ml))
-    np.savetxt("solution.csv", results, delimiter=",")
+    np.savetxt(filename, results, delimiter=",")
     

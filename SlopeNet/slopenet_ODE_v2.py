@@ -47,8 +47,8 @@ training_set = odeint(odemodel,y0,t)
 end_ode = cputime.time()
 ode_time = end_ode-start_ode
 
-legs = 4 # No. of legs = 1,2,4 
-slopenet = "LEAPFROG-FILTER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
+legs = 1 # No. of legs = 1,2,4 
+slopenet = "EULER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER
 m,n = training_set.shape
 n = n+1
 problem = "ODE"
@@ -66,6 +66,20 @@ for i in range(-9,11):
     xtemp, ytemp = create_training_data(training_set, m, n, dt, legs, slopenet)
     xtrain = np.vstack((xtrain, xtemp))
     ytrain = np.vstack((ytrain, ytemp))
+
+from sklearn.preprocessing import MinMaxScaler
+sc_input = MinMaxScaler(feature_range=(-1,1))
+sc_input = sc_input.fit(xtrain)
+xtrain_scaled = sc_input.transform(xtrain)
+xtrain_scaled.shape
+xtrain = xtrain_scaled
+
+from sklearn.preprocessing import MinMaxScaler
+sc_output = MinMaxScaler(feature_range=(-1,1))
+sc_output = sc_output.fit(ytrain)
+ytrain_scaled = sc_output.transform(ytrain)
+ytrain_scaled.shape
+ytrain = ytrain_scaled
 
 #--------------------------------------------------------------------------------------------------------------#
 from keras.models import Sequential, Model
@@ -87,8 +101,6 @@ input_layer = Input(shape=(legs*(n-1),))
 # Hidden layers
 x = Dense(100, activation='tanh', use_bias=True)(input_layer)
 x = Dense(100, activation='tanh', use_bias=True)(x)
-#x = Dense(100, activation='relu', use_bias=True)(x)
-#x = Dense(100, activation='relu', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 
 op_val = Dense(3, activation='linear', use_bias=True)(x)
@@ -113,8 +125,8 @@ end_train = cputime.time()
 train_time = end_train-start_train
 
 plt.figure()
-plt.plot(epochs, loss_history, 'b', label='Training loss')
-plt.plot(epochs, val_loss_history, 'r', label='Validation loss')
+plt.semilogy(epochs, loss_history, 'b', label='Training loss')
+plt.semilogy(epochs, val_loss_history, 'r', label='Validation loss')
 plt.title('Training and validation loss')
 plt.legend()
 plt.show()
@@ -128,7 +140,7 @@ n = n+1
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
 start_test1 = cputime.time()
-ytest_ml1 = model_predict(testing_set1, m, n, dt, legs, slopenet, sigma)
+ytest_ml1 = model_predict(testing_set1, m, n, dt, legs, slopenet, sigma, sc_input, sc_output)
 
 # sum of L2 norm of each series
 l2norm_sum1, l2norm_nd1 = calculate_l2norm(ytest_ml1, testing_set1, m, n, legs, slopenet, problem, y2s)
@@ -148,7 +160,7 @@ m,n = testing_set2.shape
 n = n+1
 
 start_test2 = cputime.time()
-ytest_ml2 = model_predict(testing_set2, m, n, dt, legs, slopenet, sigma)
+ytest_ml2 = model_predict(testing_set2, m, n, dt, legs, slopenet, sigma,sc_input, sc_output)
 
 # sum of L2 norm of each series
 l2norm_sum2, l2norm_nd2 = calculate_l2norm(ytest_ml2, testing_set2, m, n, legs, slopenet, problem, y2s)
@@ -164,7 +176,7 @@ with open('time.csv', 'a') as f:
 # export the solution in .csv file for further post processing
 ytest_ml = np.hstack((ytest_ml1, ytest_ml2))
 testing_set = np.hstack((testing_set1, testing_set2))
-export_results_ode(ytest_ml, testing_set, m, n)
+export_results_ode(ytest_ml, testing_set, m, n, slopenet, legs)
 
 # plot ML prediction and true data
-plot_results_ode()
+plot_results_ode(slopenet, legs)

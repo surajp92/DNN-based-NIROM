@@ -58,6 +58,14 @@ def create_training_data(training_set, m, n, dt, legs, slopenet):
         return create_training_data_e2(training_set, m, n, dt)
     elif (legs == 4) & (slopenet == "EULER"):
         return create_training_data_e4(training_set, m, n, dt)
+    elif (legs == 1) & (slopenet == "RESNET"):
+        return create_training_data_rn1(training_set, m, n, dt)
+    elif (legs == 2) & (slopenet == "RESNET"):
+        return create_training_data_rn2(training_set, m, n, dt)
+    elif (legs == 4) & (slopenet == "RESNET"):
+        return create_training_data_rn4(training_set, m, n, dt)
+    elif (legs == 1) & (slopenet == "RESNET2"):
+        return create_training_data_r1a(training_set, m, n, dt)
         
 def create_training_data_bdf21(_training_set, _m, _n, _dt):
     ytrain = [(1.5*_training_set[i+1]-2.0*_training_set[i]+0.5*_training_set[i-1])/_dt for i in range(1,_m-1)]
@@ -204,6 +212,12 @@ def create_training_data_e1(_training_set, _m, _n, _dt):
     xtrain = _training_set[0:_m-1]
     return xtrain, ytrain
 
+def create_training_data_r1a(_training_set, _m, _n, _dt):
+    ytrain = [(_training_set[i+1]-_training_set[i]) for i in range(_m-1)]
+    ytrain = np.array(ytrain)
+    xtrain = _training_set[0:_m-1]
+    return xtrain, ytrain
+
 
 def create_training_data_e2(_training_set, _m, _n, _dt):
     ytrain = [(_training_set[i+1]-_training_set[i])/_dt for i in range(1,_m-1)]
@@ -216,6 +230,30 @@ def create_training_data_e2(_training_set, _m, _n, _dt):
 
 def create_training_data_e4(_training_set, _m, _n, _dt):
     ytrain = [(_training_set[i+1]-_training_set[i])/_dt for i in range(3,_m-1)]
+    ytrain = np.array(ytrain)
+    xtrain = [[_training_set[i-3,:], _training_set[i-2,:], _training_set[i-1,:], _training_set[i,:]] for i in range(3,_m-1)]
+    xtrain = np.array(xtrain)
+    xtrain = xtrain.reshape(_m-4,4*(_n-1))
+    return xtrain, ytrain
+
+def create_training_data_rn1(_training_set, _m, _n, _dt):
+    ytrain = [(_training_set[i+1]-_training_set[i]) for i in range(_m-1)]
+    ytrain = np.array(ytrain)
+    xtrain = _training_set[0:_m-1]
+    return xtrain, ytrain
+
+
+def create_training_data_rn2(_training_set, _m, _n, _dt):
+    ytrain = [(_training_set[i+1]-_training_set[i]) for i in range(1,_m-1)]
+    ytrain = np.array(ytrain)
+    xtrain = [[_training_set[i-1,:], _training_set[i,:]] for i in range(1,_m-1)]
+    xtrain = np.array(xtrain)
+    xtrain = xtrain.reshape(_m-2,2*(_n-1))
+    return xtrain, ytrain
+
+
+def create_training_data_rn4(_training_set, _m, _n, _dt):
+    ytrain = [(_training_set[i+1]-_training_set[i]) for i in range(3,_m-1)]
     ytrain = np.array(ytrain)
     xtrain = [[_training_set[i-3,:], _training_set[i-2,:], _training_set[i-1,:], _training_set[i,:]] for i in range(3,_m-1)]
     xtrain = np.array(xtrain)
