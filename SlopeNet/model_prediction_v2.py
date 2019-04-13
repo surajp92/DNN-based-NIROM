@@ -81,7 +81,7 @@ def model_predict(testing_set, m, n, dt, legs, slopenet, sigma, sc_input, sc_out
     elif (legs == 4) & (slopenet == "SEQ"):
          return model_predict_seq4(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 1) & (slopenet == "EULER"):
-        return model_predict_e1(testing_set, m, n, dt, sc_input, sc_output)
+        return model_predict_e1a(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 2) & (slopenet == "EULER"):
         return model_predict_e2(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 4) & (slopenet == "EULER"):
@@ -715,7 +715,7 @@ def model_predict_e4(testing_set, m, n, dt, sc_input, sc_output):
 
     return ytest_ml
 
-def model_predict_rn1(testing_set, _m, n, dt, sc_input, sc_output):
+def model_predict_e1a(testing_set, m, n, dt, sc_input, sc_output):
     print("rn1")
     custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
 
@@ -725,7 +725,27 @@ def model_predict_rn1(testing_set, _m, n, dt, sc_input, sc_output):
     ytest_ml = [testing_set[0]]
     ytest_ml = np.array(ytest_ml)
 
-    for i in range(1,_m):
+    for i in range(1,m):
+        ytest_sc = sc_input.transform(ytest)
+        slope_ml = custom_model.predict(ytest_sc) # slope from LSTM/ ML model
+        slope_ml_sc = sc_output.inverse_transform(slope_ml)
+        a = ytest_ml[i-1] + dt*slope_ml_sc[0] # y1 at next time step
+        ytest_ml = np.vstack((ytest_ml, a))
+        ytest = a.reshape(1,(n-1))
+
+    return ytest_ml
+
+def model_predict_rn1(testing_set, m, n, dt, sc_input, sc_output):
+    print("rn1")
+    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+
+    ytest = [testing_set[0]]
+    ytest = np.array(ytest)
+
+    ytest_ml = [testing_set[0]]
+    ytest_ml = np.array(ytest_ml)
+
+    for i in range(1,m):
         ytest_sc = sc_input.transform(ytest)
         slope_ml = custom_model.predict(ytest_sc) # slope from LSTM/ ML model
         slope_ml_sc = sc_output.inverse_transform(slope_ml)

@@ -42,7 +42,7 @@ def plot_results_ode(slopenet, legs):
     for i in range(3):
         plt.figure()    
         plt.plot(solution[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (True)') 
-        plt.plot(solution[:,i+6], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
+        plt.plot(solution[:,i+9], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
         plt.ylabel('Response')
         plt.xlabel('Time')
         plt.legend(loc='best')
@@ -53,7 +53,18 @@ def plot_results_ode(slopenet, legs):
     for i in range(3,6):
         plt.figure()    
         plt.plot(solution[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (True)') 
-        plt.plot(solution[:,i+6], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
+        plt.plot(solution[:,i+9], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
+        plt.ylabel('Response')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        name = 'a='+str(i+1)+'.eps'
+        #plt.savefig(name, dpi = 400)
+        plt.show()
+    
+    for i in range(6,9):
+        plt.figure()    
+        plt.plot(solution[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (True)') 
+        plt.plot(solution[:,i+9], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
         plt.ylabel('Response')
         plt.xlabel('Time')
         plt.legend(loc='best')

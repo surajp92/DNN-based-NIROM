@@ -10,7 +10,7 @@ Created on Mon Mar 25 16:47:58 2019
 #for name in namelist:
 #    for p in plist:
 
-legs = 1 # No. of legs = 1,2,4 
+legs = 4 # No. of legs = 1,2,4 
 slopenet = 'EULER' # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER, RESNET
 sigma = 0.00
 problem = "ROM"
@@ -62,14 +62,14 @@ start_train = cputime.time()
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
 
 from sklearn.preprocessing import MinMaxScaler
-sc_input = MinMaxScaler(feature_range=(0,1))
+sc_input = MinMaxScaler(feature_range=(-1,1))
 sc_input = sc_input.fit(xtrain)
 xtrain_scaled = sc_input.transform(xtrain)
 xtrain_scaled.shape
 xtrain = xtrain_scaled
 
 from sklearn.preprocessing import MinMaxScaler
-sc_output = MinMaxScaler(feature_range=(0,1))
+sc_output = MinMaxScaler(feature_range=(-1,1))
 sc_output = sc_output.fit(ytrain)
 ytrain_scaled = sc_output.transform(ytrain)
 ytrain_scaled.shape
@@ -88,8 +88,11 @@ input_layer = Input(shape=(legs*(n-1),))
 #model.add(Dropout(0.2))
 
 # Hidden layers
-x = Dense(100, activation='relu', use_bias=True)(input_layer)
-x = Dense(100, activation='relu', use_bias=True)(x)
+x = Dense(80, activation='tanh', use_bias=True)(input_layer)
+x = Dense(80, activation='tanh', use_bias=True)(x)
+x = Dense(80, activation='tanh', use_bias=True)(x)
+x = Dense(80, activation='tanh', use_bias=True)(x)
+
 #x = Dense(100, activation='tanh', use_bias=True)(x)
 
 op_val = Dense(n-1, activation='linear', use_bias=True)(x)
@@ -99,7 +102,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=80, verbose=1, validation_split= 0.1,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=40, verbose=1, validation_split= 0.2,
                                     callbacks=callbacks_list)
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -131,13 +134,13 @@ m,n=dataset_test.shape
 testing_set = dataset_test.iloc[:,0:n].values
 time = testing_set[:,0]
 testing_set = testing_set[:,1:n]
-
+m = m
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
 start_test = cputime.time()
 ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma, sc_input, sc_output)
-        
+
 # sum of L2 norm of each series
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem)
 
