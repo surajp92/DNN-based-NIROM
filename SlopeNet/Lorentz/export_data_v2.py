@@ -34,7 +34,33 @@ def plot_results_rom(dt1, slopenet, legs):
         name = 'a='+str(i+1)+'.eps'
         #plt.savefig(name, dpi = 400)
         plt.show()
-
+        
+def plot_results_lorenz(dt1, slopenet, legs):
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
+    solution = np.loadtxt(open(filename, "rb"), delimiter=",", skiprows=0)
+    m,n = solution.shape
+    time = solution[:,0]
+    dt = time[1] - time[0]
+    time_test = solution[0:1000,0]
+    time_pred = solution[1000:,0]
+    ytrue = solution[:,1:int((n-1)/2+1)]
+    ytestplot = solution[0:1000,int((n-1)/2+1):]
+    ypredplot = solution[1000:,int((n-1)/2+1):]
+    time_test = time[0:1000]
+    time_pred = time[1000:]
+    for i in range(int(n/2)):
+        plt.figure()    
+        plt.plot(time,ytrue[:,i], 'r-', label=r'$y_'+str(i+1)+'$'+' (True)')
+        plt.plot(time[0:1000],ytestplot[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (ML Test)')
+        plt.plot(time[1000:],ypredplot[:,i], 'g-', label=r'$y_'+str(1+1)+'$'+' (ML Pred)')
+        #plt.plot(solution[:,i+int(n/2)], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
+        plt.ylabel('Response')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        name = 'a='+str(i+1)+'.eps'
+        #plt.savefig(name, dpi = 400)
+        plt.show()
+        
 def plot_results_ode(slopenet, legs):
     filename = slopenet+'_p=0'+str(legs)+'.csv'
     solution = np.loadtxt(open(filename, "rb"), delimiter=",", skiprows=0)
@@ -72,6 +98,22 @@ def plot_results_ode(slopenet, legs):
         #plt.savefig(name, dpi = 400)
         plt.show()
 
+def plot_results_lorenzold(slopenet, legs):
+    filename = slopenet+'_p=0'+str(legs)+'.csv'
+    solution = np.loadtxt(open(filename, "rb"), delimiter=",", skiprows=0)
+    m,n = solution.shape
+    for i in range(3):
+        plt.figure()    
+        plt.plot(solution[:,i], 'b-', label=r'$y_'+str(i+1)+'$'+' (True)') 
+        plt.plot(solution[:,i+3], 'r-', label=r'$y_'+str(i+1)+'$'+' (ML)') 
+        plt.ylabel('Response')
+        plt.xlabel('Time')
+        plt.legend(loc='best')
+        #name = 'a='+str(i+1)+'.eps'
+        #plt.savefig(name, dpi = 400)
+        plt.show()
+    
+       
 def calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem, y2s=0.0):
     # calculates L2 norm of each series
     error = testing_set-ytest_ml

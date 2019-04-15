@@ -5,6 +5,18 @@ Created on Sun Mar 17 15:19:23 2019
 
 @author: user1
 """
+#namelist = ['SEQ', 'RESNET','EULER', 'BDF2', 'BDF3']
+#plist = [1,2,4]
+#for name in namelist:
+#    for p in plist:
+legs = 4 # No. of legs = 1,2,4 
+slopenet = "EULER" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER, RESNET
+problem = "ODE"
+
+import os
+if os.path.isfile('best_model.hd5'):
+    os.remove('best_model.hd5')
+    
 import numpy as np
 from numpy.random import seed
 seed(1)
@@ -43,22 +55,21 @@ y0 = [1, -0.1, 0]
 start_ode = cputime.time()
 
 training_set = odeint(odemodel,y0,t)
+m,n = training_set.shape
+n = n+1
 
 end_ode = cputime.time()
 ode_time = end_ode-start_ode
 
-legs = 4 # No. of legs = 1,2,4 
-slopenet = "RESNET" # Choices: BDF2, BDF3, BDF4, SEQ, EULER, LEAPFROG, LEAPFROG-FILTER, RESNET
-m,n = training_set.shape
-n = n+1
-problem = "ODE"
-
 start_train = cputime.time()
 xtrain, ytrain = create_training_data(training_set, m, n, dt, legs, slopenet)
-
+a = np.zeros(1000)
+k = 0
 # additional data for training with random initial condition
-for i in range(-9,11):
-    y2s = 0.1*(0.1*i)
+for i in range(-19,21):
+    y2s = 0.1*(0.1*0.5*i)
+    a[k] = y2s
+    k = k+1
     y0 = [1.0, y2s, 0.0]
     training_set = odeint(odemodel, y0, t)
     m,n = training_set.shape
@@ -66,6 +77,22 @@ for i in range(-9,11):
     xtemp, ytemp = create_training_data(training_set, m, n, dt, legs, slopenet)
     xtrain = np.vstack((xtrain, xtemp))
     ytrain = np.vstack((ytrain, ytemp))
+
+#for i in range(-9,11):
+#    y2s = 0.1*(0.001*i)
+#    a[k] = y2s
+#    k = k+1
+#    y0 = [1.0, y2s, 0.0]
+#    training_set = odeint(odemodel, y0, t)
+#    m,n = training_set.shape
+#    n = n+1
+#    xtemp, ytemp = create_training_data(training_set, m, n, dt, legs, slopenet)
+#    xtrain = np.vstack((xtrain, xtemp))
+#    ytrain = np.vstack((ytrain, ytemp))
+##    
+indices = np.random.randint(0,xtrain.shape[0],2000)
+xtrain = xtrain[indices]
+ytrain = ytrain[indices]
 
 from sklearn.preprocessing import MinMaxScaler
 sc_input = MinMaxScaler(feature_range=(-1,1))
@@ -102,7 +129,7 @@ input_layer = Input(shape=(legs*(n-1),))
 x = Dense(20, activation='tanh', use_bias=True)(input_layer)
 x = Dense(20, activation='tanh', use_bias=True)(x)
 x = Dense(20, activation='tanh', use_bias=True)(x)
-x = Dense(20, activation='tanh', use_bias=True)(x)
+#x = Dense(20, activation='tanh', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 
 op_val = Dense(3, activation='linear', use_bias=True)(x)
@@ -176,7 +203,7 @@ with open('time.csv', 'a') as f:
     for item in list:
         f.write("%s\t" % item)
         
-y2s =0.0
+y2s =0.1*(0.00)
 y0test = [1, y2s, 0]
 testing_set3 = odeint(odemodel,y0test,t)
 m,n = testing_set3.shape
