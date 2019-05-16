@@ -25,14 +25,18 @@ from create_data_v2 import *
 from model_prediction_v2 import *
 from export_data_v2 import *
 
-dataset_train = pd.read_csv('./c.csv', sep=",",skiprows=0,header = None, nrows=1000)
+
+dataset_train = pd.read_csv('./a.csv', sep=",",skiprows=0,header = None, nrows=1000)
 m,n=dataset_train.shape
 training_set = dataset_train.iloc[:,0:n].values
 dt = training_set[1,0] - training_set[0,0]
 training_set = training_set[:,1:n]
 n = n-1
-lookback = 4
+lookback = 8
 problem = "ROM"
+
+slopenet = "LSTM"
+legs = lookback
 
 from sklearn.preprocessing import MinMaxScaler
 sc = MinMaxScaler(feature_range=(0,1))
@@ -63,15 +67,15 @@ val_loss = history.history['val_loss']
 epochs = range(1, len(loss) + 1)
 
 plt.figure()
-plt.plot(epochs, loss, 'b', label='Training loss')
-plt.plot(epochs, val_loss, 'r', label='Validationloss')
+plt.semilogy(epochs, loss, 'b', label='Training loss')
+plt.semilogy(epochs, val_loss, 'r', label='Validationloss')
 plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 #read data for testing
-dataset_test = pd.read_csv('./c.csv', sep=",",header = None, skiprows=0)
+dataset_test = pd.read_csv('./a.csv', sep=",",header = None, skiprows=0)
 dataset_total = pd.concat((dataset_train,dataset_test),axis=0)
 dataset_total.drop(dataset_total.columns[[0]], axis=1, inplace=True)
 m,n=dataset_test.shape
@@ -116,10 +120,10 @@ testing_set= testing_set_unscaled
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n, lookback, "LSTM", problem)
 
 # export the solution in .csv file for further post processing
-export_results_rom(ytest_ml, testing_set, time, m, n)
+export_results_rom(ytest_ml, testing_set, time, m, n, slopenet, legs)
 
 # plot ML prediction and true data
-plot_results_rom()
+plot_results_rom(dt, slopenet, legs)
 
 
 

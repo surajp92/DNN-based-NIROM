@@ -39,11 +39,12 @@ def f(state, t):
   x, y, z = state  # unpack the state vector
   return sigma * (y - x), x * (rho - z) - y, x * y - beta * z  # derivatives
 
-state0 = [1.0, 1.0, 1.0]
+state0 = [1.508870,-1.531271, 25.46091]
 t_init  = 0.0  # Initial time
-t_final = 20.0 # Final time
+t_final = 100.0 # Final time
 dt = 0.01
-t = np.arange(0.0, 20.0, 0.01)
+t = np.arange(t_init, t_final, dt)
+nsamples = int((t_final-t_init)/dt)
 
 start_ode = cputime.time()
 
@@ -63,7 +64,7 @@ def coeff_determination(y_true, y_pred):
     SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
     return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
-training_set = states[0:1000,:]
+training_set = states[0:nsamples,:]
 m,n = training_set.shape
 n = n+1
 
@@ -103,13 +104,13 @@ model = Sequential()
 
 # Layers start
 input_layer = Input(shape=(legs*(n-1),))
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 
 # Hidden layers
-x = Dense(100, activation='relu', use_bias=True)(input_layer)
-x = Dense(100, activation='relu', use_bias=True)(x)
-#x = Dense(80, activation='tanh', use_bias=True)(x)
-#x = Dense(80, activation='tanh', use_bias=True)(x)
+x = Dense(40, activation='tanh', use_bias=True)(input_layer)
+x = Dense(40, activation='tanh', use_bias=True)(x)
+x = Dense(40, activation='tanh', use_bias=True)(x)
+x = Dense(40, activation='tanh', use_bias=True)(x)
 #x = Dense(100, activation='relu', use_bias=True)(x)
 
 op_val = Dense(3, activation='linear', use_bias=True)(x)
@@ -119,7 +120,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=[coeff_determination])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=300, batch_size=200, verbose=1, validation_split= 0.2,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=300, batch_size=40, verbose=1, validation_split= 0.2,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -142,7 +143,12 @@ plt.show()
 
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model
-
+state0 = [1.508870,-1.531271, 25.46091]
+t_init  = 100.0  # Initial time
+t_final = 120.0 # Final time
+dt = 0.01
+t = np.arange(t_init, t_final, dt)
+states = odeint(f, state0, t)
 testing_set = states
 m,n=testing_set.shape
 time = t
@@ -151,30 +157,30 @@ n = n+1
 #--------------------------------------------------------------------------------------------------------------#
 # predict results recursively using the model 
 start_test = cputime.time()
-#ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma, sc_input, sc_output)
+ytest_ml = model_predict(testing_set, m, n, dt, legs, slopenet, sigma, sc_input, sc_output)
 
-ytest = [testing_set[0], testing_set[1], testing_set[2], testing_set[3]]
-ytest = np.array(ytest)
-ytest = ytest.reshape(1,4*(n-1))
-
-ytest_ml = [testing_set[0]]
-ytest_ml = np.array(ytest_ml)
-ytest_ml = np.vstack((ytest_ml, testing_set[1]))
-ytest_ml = np.vstack((ytest_ml, testing_set[2]))
-ytest_ml = np.vstack((ytest_ml, testing_set[3]))
-
-for i in range(4, m):
-    ytest_sc = ytest
-    slope_ml = custom_model.predict(ytest_sc) # slope from LSTM/ ML model
-    slope_ml_sc = slope_ml
-    a = ytest_ml[i-1] + 1.0*dt*slope_ml_sc[0] # y1 at next time step
-    ytest_ml = np.vstack((ytest_ml, a))
-    e = a.reshape(1,n-1)
-    ytemp = ytest[0]
-    ytemp = ytemp.reshape(1,4*(n-1))
-    ee = np.concatenate((ytemp,e), axis = 1)
-    ee = ee[0,n-1:]
-    ytest = ee.reshape(1,4*(n-1))
+#ytest = [testing_set[0], testing_set[1], testing_set[2], testing_set[3]]
+#ytest = np.array(ytest)
+#ytest = ytest.reshape(1,4*(n-1))
+#
+#ytest_ml = [testing_set[0]]
+#ytest_ml = np.array(ytest_ml)
+#ytest_ml = np.vstack((ytest_ml, testing_set[1]))
+#ytest_ml = np.vstack((ytest_ml, testing_set[2]))
+#ytest_ml = np.vstack((ytest_ml, testing_set[3]))
+#
+#for i in range(4, m):
+#    ytest_sc = ytest
+#    slope_ml = custom_model.predict(ytest_sc) # slope from LSTM/ ML model
+#    slope_ml_sc = slope_ml
+#    a = ytest_ml[i-1] + 1.0*dt*slope_ml_sc[0] # y1 at next time step
+#    ytest_ml = np.vstack((ytest_ml, a))
+#    e = a.reshape(1,n-1)
+#    ytemp = ytest[0]
+#    ytemp = ytemp.reshape(1,4*(n-1))
+#    ee = np.concatenate((ytemp,e), axis = 1)
+#    ee = ee[0,n-1:]
+#    ytest = ee.reshape(1,4*(n-1))
     
 # sum of L2 norm of each series
 l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set, m, n, legs, slopenet, problem)

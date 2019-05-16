@@ -1,0 +1,8 @@
+6 layers, 120 neurons
+40 batch size
+epochs 900
+val_split = 0.2
+accuracy, mean_squared_error
+
+Lorenz:
+5*256, relu, adams, mse, accuracy, 1000 epochs, bs=50

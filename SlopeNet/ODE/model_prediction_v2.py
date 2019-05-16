@@ -81,7 +81,7 @@ def model_predict(testing_set, m, n, dt, legs, slopenet, sigma, sc_input, sc_out
     elif (legs == 4) & (slopenet == "SEQ"):
          return model_predict_seq4(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 1) & (slopenet == "EULER"):
-        return model_predict_e1a(testing_set, m, n, dt, sc_input, sc_output)
+        return model_predict_e1(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 2) & (slopenet == "EULER"):
         return model_predict_e2(testing_set, m, n, dt, sc_input, sc_output)
     elif (legs == 4) & (slopenet == "EULER"):

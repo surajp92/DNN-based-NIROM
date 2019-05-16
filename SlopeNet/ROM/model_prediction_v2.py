@@ -151,7 +151,7 @@ def model_predict_bdf22(testing_set, m, n, dt, sc_input, sc_output):
 
 def model_predict_bdf24(testing_set, m, n, dt, sc_input, sc_output):
     print("bdf24")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+    custom_model = load_model('best_model.hd5')#,custom_objects={'coeff_determination': coeff_determination})
     
     # create input at t= 0 for the model testing
     ytest = [testing_set[0], testing_set[1], testing_set[2], testing_set[3]]
@@ -786,7 +786,7 @@ def model_predict_rn2(testing_set, m, n, dt, sc_input, sc_output):
 
 def model_predict_rn4(testing_set, m, n, dt, sc_input, sc_output):
     print("rn4")
-    custom_model = load_model('best_model.hd5',custom_objects={'coeff_determination': coeff_determination})
+    custom_model = load_model('best_model.hd5')#,custom_objects={'coeff_determination': coeff_determination})
 
     ytest = [testing_set[0], testing_set[1], testing_set[2], testing_set[3]]
     ytest = np.array(ytest)

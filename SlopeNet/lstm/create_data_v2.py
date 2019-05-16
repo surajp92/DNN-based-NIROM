@@ -7,14 +7,14 @@ Created on Mon Mar 25 17:10:27 2019
 """
 import numpy as np
 
-def create_training_data_lstm(_training_set, _m, _n, _lookback):
-    ytrain = [_training_set[i+1] for i in range(_lookback-1,_m-1)]
+def create_training_data_lstm(training_set, m, n, lookback):
+    ytrain = [training_set[i+1] for i in range(lookback-1,m-1)]
     ytrain = np.array(ytrain)
-    xtrain = np.zeros((_m-_lookback,_lookback,_n))
-    for i in range(_m-_lookback):
-        a = _training_set[i]
-        for j in range(1,_lookback):
-            a = np.vstack((a,_training_set[i+j]))
+    xtrain = np.zeros((m-lookback,lookback,n))
+    for i in range(m-lookback):
+        a = training_set[i]
+        for j in range(1,lookback):
+            a = np.vstack((a,training_set[i+j]))
         xtrain[i] = a
     
     return xtrain, ytrain
