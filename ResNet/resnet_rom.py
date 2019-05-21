@@ -12,7 +12,7 @@ Created on Mon Mar 25 16:47:58 2019
 
 #%%
 legs = 4 # No. of legs = 1,2,4 
-slopenet = 'RESNET' # Choices: BDF2, SEQ, EULER, RESNET
+slopenet = 'BDF2' # Choices: BDF2, SEQ, EULER, RESNET
 problem = "ROM"
 
 import os
@@ -50,7 +50,7 @@ def customloss(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 #%%
-dataset_train = np.genfromtxt('./a94.csv', delimiter=",",skip_header=0)
+dataset_train = np.genfromtxt('./b34.csv', delimiter=",",skip_header=0)
 training_set = dataset_train[:1000,1:]
 m,n=training_set.shape
 t = dataset_train[:,0]
@@ -99,7 +99,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=1500, batch_size=40, verbose=1, validation_split= 0.2,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=40, verbose=1, validation_split= 0.2,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -122,14 +122,13 @@ plt.legend()
 plt.show()
 
 #%% read data for testing
-dataset_train = np.genfromtxt('./a94.csv', delimiter=",",skip_header=0)
+dataset_train = np.genfromtxt('./b34.csv', delimiter=",",skip_header=0)
 testing_set = dataset_train[:,1:]
 m,n = testing_set.shape
 custom_model = load_model('best_model.hd5')#,custom_objects={'coeff_determination': coeff_determination})
 
 #%%
 ytest_ml = model_predict(testing_set, dt, legs, slopenet, sc_input, sc_output)
-
 
 #%%
 # sum of L2 norm of each series
@@ -138,6 +137,6 @@ l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set,legs, slopenet, p
 # export the solution in .csv file for further post processing
 export_results(ytest_ml, testing_set, t, slopenet, legs)
 
+#%%
 # plot ML prediction and true data
 plot_results_rom(dt, slopenet, legs)
-

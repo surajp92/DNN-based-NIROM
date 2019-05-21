@@ -62,7 +62,7 @@ def f(state, t):
 #state0 = [1.508870,-1.531271, 25.46091]
 #state0 = [-8.0, 7.0, 27.0]
 t_init  = 0.0  # Initial time
-t_final = 25.0 # Final time
+t_final = 8.0 # Final time
 dt = 0.01
 t = np.arange(t_init, t_final, dt)
 nsamples = int((t_final-t_init)/dt)
@@ -110,9 +110,9 @@ input_layer = Input(shape=(legs*n,))
 #model.add(Dropout(0.2))
 
 # Hidden layers
-x = Dense(40, activation='relu', use_bias=True)(input_layer)
-x = Dense(40, activation='relu', use_bias=True)(x)
-#x = Dense(256, activation='relu', use_bias=True)(x)
+x = Dense(10, activation='relu', use_bias=True)(input_layer)
+x = Dense(10, activation='relu', use_bias=True)(x)
+x = Dense(10, activation='relu', use_bias=True)(x)
 #x = Dense(256, activation='relu', use_bias=True)(x)
 #x = Dense(256, activation='relu', use_bias=True)(x)
 #x = Dense(120, activation='relu', kernel_regularizer=regularizers.l2(0.0001),  use_bias=True)(x)
@@ -126,7 +126,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=200, batch_size=100, verbose=1, validation_split= 0.2,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=1000, batch_size=200, verbose=1, validation_split= 0.15,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -171,4 +171,51 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 ax.plot(states[:,0], states[:,1], states[:,2], color='blue')
 ax.plot(ytest_ml[:,0], ytest_ml[:,1], ytest_ml[:,2], color='green')
+plt.show()
+
+#%%
+def colorline3d(ax, x, y, z, cmap):
+    N = len(x)
+    skip = int(0.01*N)
+    for i in range(0,N,skip):
+        ax.plot(x[i:i+skip+1], y[i:i+skip+1], z[i:i+skip+1], lw=2, color=cmap(int(255*i/N)))
+
+#%%
+#fig, ax = plt.subplots(1, 1, figsize=(6,4))
+#ax = plt.gca(projection='3d')
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+#ax.plot(states[:,0], states[:,1], states[:,2], lw=0.5)
+colorline3d(ax, states[:,0], states[:,1], states[:,2], cmap = plt.cm.twilight)
+#ax.grid(False)
+ax.set_xlim([-20,20])
+ax.set_ylim([-50,50])
+ax.set_zlim([0,50])
+ax.set_xticks([-20,-10,0,10,20])
+ax.set_yticks([-40,-20,0,120,40])
+ax.set_zticks([0,10,20,30,40,50])
+ax.set_xlabel('$x$')
+ax.set_ylabel('$y$')
+ax.set_zlabel('$z$')
+fig.tight_layout() 
+plt.show()
+
+#%%
+#fig, ax = plt.subplots(1, 1, figsize=(6,4))
+#ax = plt.gca(projection='3d')
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+#ax.plot(states[:,0], states[:,1], states[:,2], lw=0.5)
+colorline3d(ax, ytest_ml[:,0], ytest_ml[:,1], ytest_ml[:,2], cmap = plt.cm.twilight)
+#ax.grid(False)
+ax.set_xlim([-20,20])
+ax.set_ylim([-50,50])
+ax.set_zlim([0,50])
+ax.set_xticks([-20,-10,0,10,20])
+ax.set_yticks([-40,-20,0,120,40])
+ax.set_zticks([0,10,20,30,40,50])
+ax.set_xlabel('$x$')
+ax.set_ylabel('$y$')
+ax.set_zlabel('$z$')
+fig.tight_layout() 
 plt.show()
