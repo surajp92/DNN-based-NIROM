@@ -11,9 +11,9 @@ Created on Mon Mar 25 16:47:58 2019
 #    for p in plist:
 
 #%%
-legs = 4 # No. of legs = 1,2,4 
-slopenet = 'BDF2' # Choices: BDF2, SEQ, EULER, RESNET
-problem = "KO"
+legs = 4# No. of legs = 1,2,4 
+slopenet = 'RESNET' # Choices: BDF2, SEQ, EULER, RESNET
+problem = "SWE"
 
 import os
 if os.path.isfile('best_model.hd5'):
@@ -24,7 +24,7 @@ import numpy as np
 from numpy.random import seed
 seed(1)
 from tensorflow import set_random_seed
-set_random_seed(1)
+set_random_seed(2)
 import matplotlib.pyplot as plt
 from create_data import *
 from model_prediction import *
@@ -38,9 +38,6 @@ from keras.models import load_model
 from keras import optimizers
 from keras import losses
 from keras import regularizers
-from scipy.integrate import odeint
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 
 #%%
 def coeff_determination(y_true, y_pred):
@@ -53,26 +50,13 @@ def customloss(y_true, y_pred):
     return K.mean(K.square(y_pred - y_true), axis=-1)
 
 #%%
-def f(y, t):
-    dy0dt =  y[0]   * y[2]
-    dy1dt = -y[1]   * y[2]
-    dy2dt = -y[0]**2 + y[1]**2
-    dydt  = [dy0dt, dy1dt, dy2dt]
-    return dydt
-
-state0 = [1.0,0.05,0.0]
-#state0 = 30*(np.random.rand(3)-0.5)
-t_init  = 0.0  # Initial time
-t_final = 10.0 # Final time
-dt = 0.01
-t = np.arange(t_init, t_final, dt)
-nsamples = int((t_final-t_init)/dt)
-states = odeint(f, state0, t)
-
-#%%
-#dataset_train = np.genfromtxt('./a94.csv', delimiter=",",skip_header=0)
-training_set = states
+dataset_train = np.genfromtxt('./DNS_c_4.csv', delimiter=",",skip_header=0)
+training_set = dataset_train[:1441,1:5]
 m,n=training_set.shape
+t = dataset_train[:1441,0]
+dt = t[1] - t[0]
+
+start_train = cputime.time()
 
 xtrain, ytrain = create_training_data(training_set, dt, legs, slopenet)
 
@@ -90,9 +74,8 @@ ytrain_scaled = sc_output.transform(ytrain)
 ytrain = ytrain_scaled
 
 indices = np.random.randint(0,xtrain.shape[0],1000)
-xtrainsr = xtrain[indices]
-ytrainsr = ytrain[indices]
-
+xtrain = xtrain[indices]
+ytrain = ytrain[indices]
 
 #%%
 model = Sequential()
@@ -102,13 +85,13 @@ input_layer = Input(shape=(legs*n,))
 #model.add(Dropout(0.2))
 
 # Hidden layers
-x = Dense(128, activation='relu', use_bias=True)(input_layer)
-x = Dense(128, activation='relu', use_bias=True)(x)
-x = Dense(128, activation='relu', use_bias=True)(x)
-x = Dense(128, activation='relu', use_bias=True)(x)
-#x = Dense(120, activation='relu', kernel_regularizer=regularizers.l2(0.0001),  use_bias=True)(x)
-#x = Dense(120, activation='relu',  use_bias=True)(x)
-#x = Dense(120, activation='relu',  use_bias=True)(x)
+x = Dense(80, activation='tanh',  kernel_initializer='glorot_normal', use_bias=True)(input_layer)
+x = Dense(80, activation='tanh',  kernel_initializer='glorot_normal', use_bias=True)(x)
+x = Dense(80, activation='tanh',  kernel_initializer='glorot_normal', use_bias=True)(x)
+x = Dense(80, activation='tanh',  kernel_initializer='glorot_normal', use_bias=True)(x)
+
+#x = Dense(240, activation='relu',  use_bias=True)(x)
+#x = Dense(240, activation='relu',  use_bias=True)(x)
 
 op_val = Dense(n, activation='linear', use_bias=True)(x)
 custom_model = Model(inputs=input_layer, outputs=op_val)
@@ -117,7 +100,7 @@ checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_
 callbacks_list = [checkpoint]
 
 custom_model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-history_callback = custom_model.fit(xtrain, ytrain, epochs=600, batch_size=300, verbose=1, validation_split= 0.1,
+history_callback = custom_model.fit(xtrain, ytrain, epochs=900, batch_size=120, verbose=1, validation_split= 0.1,
                                     callbacks=callbacks_list)
 
 # training and validation loss. Plot loss
@@ -129,6 +112,9 @@ print("\n%s: %.2f%%" % (custom_model.metrics_names[1], scores[1]*100))
 
 epochs = range(1, len(loss_history) + 1)
 
+end_train = cputime.time()
+train_time = end_train-start_train
+
 plt.figure()
 plt.semilogy(epochs, loss_history, 'b', label='Training loss')
 plt.semilogy(epochs, val_loss_history, 'r', label='Validation loss')
@@ -137,7 +123,8 @@ plt.legend()
 plt.show()
 
 #%% read data for testing
-testing_set = states
+dataset_train = np.genfromtxt('./DNS_c_4.csv', delimiter=",",skip_header=0)
+testing_set = dataset_train[:1441,1:5]
 m,n = testing_set.shape
 custom_model = load_model('best_model.hd5')#,custom_objects={'coeff_determination': coeff_determination})
 
@@ -151,6 +138,35 @@ l2norm_sum, l2norm_nd = calculate_l2norm(ytest_ml, testing_set,legs, slopenet, p
 # export the solution in .csv file for further post processing
 export_results(ytest_ml, testing_set, t, slopenet, legs)
 
+#%%
 # plot ML prediction and true data
-plot_results_ko(dt, slopenet, legs)
+#plot_results_swe(dt, slopenet, legs)
 
+font = {'family' : 'Times New Roman',
+        'size'   : 14}	
+plt.rc('font', **font)
+nrows = 4
+#list = [0,3,7,11,15,19,23,27,31]
+list = [0,1,2,3,4]
+
+fig, axs = plt.subplots(nrows, 1, figsize=(10,8))#, constrained_layout=True)
+for i,j in zip(range(nrows),list):
+    #axs[i].plot(ytrains[:,i], color='black', linestyle='-', label=r'$y_'+str(i+1)+'$'+' (True)', zorder=5)
+    axs[i].plot(t,testing_set[:,j], color='black', linestyle='-', label=r'$y_'+str(i+1)+'$'+' (True)', zorder=5)
+    #axs[i].plot(t,gp[:,j], color='blue', linestyle='-', label=r'$y_'+str(i+1)+'$'+' (True)', zorder=5)
+    axs[i].plot(t,ytest_ml[:,j], color='red', linestyle='-', label=r'$y_'+str(i+1)+'$'+' (GP)', zorder=5) 
+    axs[i].set_xlim([t[0], t[m-1]])
+    #axs[i].set_ylim([min(ytest_ml[:,j])-0.2, max(ytest_ml[:,j])+0.2])
+    #axs[i].set_ylim([-(max(ytest_ml[:,j])*1.25), (max(ytest_ml[:,j])*1.25)])
+    axs[i].set_ylabel('$c_'+'{'+(str(j+1)+'}'+'$'), fontsize = 14)
+    axs[i].axvspan(t[0], t[0]+0.5*(t[m-1]-t[0]), facecolor='0.5', alpha=0.5)
+   
+fig.tight_layout() 
+
+#fig.subplots_adjust(bottom=0.15)
+
+line_labels = ["True", "GP", "ML"]#, "ML-Train", "ML-Test"]
+plt.figlegend( line_labels,  loc = 'lower center', borderaxespad=0.1, ncol=6, labelspacing=0.,  prop={'size': 13} ) #bbox_to_anchor=(0.5, 0.0), borderaxespad=0.1, 
+
+savefile = slopenet+'_p=0'+str(legs)+'.eps'
+fig.savefig(savefile)#, bbox_inches = 'tight', pad_inches = 0.01)
