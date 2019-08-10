@@ -1,0 +1,2 @@
+training time in seconds =143.15197467803955
+testing time in seconds = 2.8691048622131348
